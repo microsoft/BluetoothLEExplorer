@@ -1,0 +1,244 @@
+<Page x:Class="BluetoothLEExplorer.Views.Discover"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d" 
+      xmlns:models="using:BluetoothLEExplorer.Models">
+
+    <Page.DataContext>
+        <vm:DiscoverViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <converters:ValueWhenConverter x:Key="VisibleWhenTrueConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="VisibleWhenFalseConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>False</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="EnumerationBoolToStringConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <x:String>Stop</x:String>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <x:String>Start</x:String>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="CollapsedWhenZero">
+            <converters:ValueWhenConverter.When>
+                <x:Int32>0</x:Int32>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="CollapsedWhenNegOne">
+            <converters:ValueWhenConverter.When>
+                <x:Int32>-1</x:Int32>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <CollectionViewSource x:Name="SortedDevices" IsSourceGrouped="False" Source="{x:Bind ViewModel.DeviceList, Mode=OneWay}"/>
+
+    </Page.Resources>
+
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        
+
+        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Discover">
+
+            <!--  secondary commands  -->
+            <controls:PageHeader.SecondaryCommands>
+                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+            </controls:PageHeader.SecondaryCommands>
+
+        </controls:PageHeader>
+
+        <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource VisibleWhenFalseConverter}}">
+            <TextBlock Text="Center role is not supported on this device" />
+        </RelativePanel>
+
+        <ProgressBar x:Name="progressBar" 
+                     IsEnabled="{x:Bind ViewModel.IsEnumerating, Mode=OneWay }"
+                     IsIndeterminate="{x:Bind ViewModel.IsEnumerating, Mode=OneWay }"
+                     RelativePanel.Below="pageHeader" 
+                     RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                     Visibility="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}"/>
+
+        <Grid RelativePanel.Below="progressBar" Padding="10" Visibility="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"  />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                    <Button Content="{x:Bind ViewModel.IsEnumerating, Mode=OneWay, Converter={StaticResource EnumerationBoolToStringConverter}}" Click="{x:Bind ViewModel.ToggleEnumeration}" />
+                    <TextBlock Text="Enumeration finished" Visibility="{x:Bind ViewModel.EnumerationFinished, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <CheckBox Content="Continuous Enumeration" IsChecked="{x:Bind ViewModel.ContinuousEnumeration, Mode=TwoWay}" />
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5">
+                    <TextBlock Text="Filter: " VerticalAlignment="Center" Margin="0, 0, 5, 0"/>
+                    <TextBox Text="{Binding GridFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  />
+                </StackPanel>
+                            
+                <TextBlock>
+                    <Run Text="Total Device Count:" />
+                    <Run Text="{x:Bind ViewModel.Context.BluetoothLEDevices.Count, Mode=OneWay}" />
+                </TextBlock> 
+            </StackPanel>
+
+            <GridView Grid.Row="1" x:Name="DevicesListView" 
+                ItemsSource="{x:Bind ViewModel.DeviceList, Mode=OneWay}"   
+                SelectedItem="{x:Bind ViewModel.SelectedDevice, Mode=TwoWay}" Margin="0,20,0,0">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal">
+                            <ItemsWrapGrid.ChildrenTransitions>
+                                <TransitionCollection>
+                                    <AddDeleteThemeTransition/>
+                                    <RepositionThemeTransition/>
+                                    <ReorderThemeTransition/>
+                                </TransitionCollection>
+                            </ItemsWrapGrid.ChildrenTransitions>
+                        </ItemsWrapGrid>
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ObservableBluetoothLEDevice" >
+                        <Grid Height="200" Width="150" Padding="5" Holding="Grid_Holding" RightTapped="Grid_RightTapped" Background="{ThemeResource CustomColor}">
+                            <FlyoutBase.AttachedFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Pair" Click="{x:Bind DoInAppPairing}" />
+                                </MenuFlyout>
+                            </FlyoutBase.AttachedFlyout>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Row="0" Grid.Column="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border BorderBrush="Black" BorderThickness="2" >
+                                    <Image Grid.Column="0" x:Name="Glyph" Source="{Binding Glyph}"  Height="40" Width="40" Margin="5" />
+                                </Border>
+                                <StackPanel Grid.Column="1" >
+                                    <TextBlock Margin="5,0,0,0">
+                                    RSSI: <Run Text="{x:Bind RSSI, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Margin="5,0,0,0" Visibility="{x:Bind BatteryLevel, Mode=OneWay, Converter={StaticResource CollapsedWhenNegOne}}">
+                                    Battery: <Run Text="{x:Bind BatteryLevel, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+                                <TextBlock TextWrapping="Wrap">
+                                    Name: <Run Text="{x:Bind Name, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock TextWrapping="WrapWholeWords" Foreground="Black">
+                                    BT Address: <Run Text="{x:Bind BluetoothAddressAsString, Mode=OneTime}" />
+                                </TextBlock>
+                                <TextBlock Foreground="Black">
+                                    Connected: <Run Text="{x:Bind IsConnected, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Foreground="Black">
+                                    Paired: <Run Text="{x:Bind IsPaired, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Visibility="{x:Bind ServiceCount, Converter={StaticResource CollapsedWhenZero}}" Foreground="Black" > 
+                                    Service Count: <Run Text="{x:Bind ServiceCount, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    RSSI: <Run Text="{x:Bind RSSI, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </Grid>
+    </RelativePanel>
+</Page>
+

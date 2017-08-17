@@ -1,0 +1,49 @@
+﻿<UserControl
+    x:Class="BluetoothLEExplorer.CustomControls.GattLocalCharacteristicControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BluetoothLEExplorer.CustomControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    ScrollViewer.VerticalScrollBarVisibility="Disabled">
+
+    <UserControl.Resources>
+        <!-- Green -->
+        <Color x:Key="CheckBoxForegroundCheckedDisabled">Green</Color>
+        <Color x:Key="CheckBoxCheckBackgroundStrokeCheckedDisabled">Green</Color>
+        <Color x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled">Green</Color>
+        
+        <!-- Red -->
+        <Color x:Key="CheckBoxForegroundUncheckedDisabled">Red</Color>
+        <Color x:Key="CheckBoxCheckBackgroundStrokeUncheckedDisabled">Red</Color>
+        <Color x:Key="CheckBoxCheckGlyphForegroundUncheckedDisabled">Red</Color>
+
+    </UserControl.Resources>
+
+    <StackPanel BorderThickness="2" BorderBrush="Black" Padding="5">
+        <StackPanel Orientation="Horizontal" Padding="5" Visibility="{x:Bind ShowValue}">
+            <TextBlock Text="Value" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox x:Name="ValueText" Text="{x:Bind Value, Mode=TwoWay, FallbackValue='blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah '}"
+                     IsReadOnly="{x:Bind IsReadOnly}" MaxWidth="336" TextWrapping="Wrap" Width="336" PlaceholderText="" />
+            <!--<TextBox x:Name="ValueText" Text="{x:Bind Value, Mode=OneWay }" IsReadOnly="True" MaxWidth="336" TextWrapping="Wrap" Width="336"  />-->
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Padding="5" >
+            <TextBlock Text="User Description" VerticalAlignment="Center" Margin="0,0,10,0" />
+            <TextBox x:Name="descText" Text="{x:Bind Characteristic.UserDescription, Mode=TwoWay}" IsReadOnly="True" Width="262"/>
+        </StackPanel>
+                
+        <StackPanel Padding="5">
+            <CheckBox Content="Read"                 IsChecked="{x:Bind Characteristic.HasReadDescriptor, Mode=TwoWay}" x:Name="cbRead" IsEnabled="False" />
+            <CheckBox Content="Write"                IsChecked="{x:Bind Characteristic.HasWriteDescriptor, Mode=TwoWay}" x:Name="cbWrite" IsEnabled="False"/>
+            <CheckBox Content="WriteWithoutResponse" IsChecked="{x:Bind Characteristic.HasWriteWithoutResponseDescriptor, Mode=TwoWay}" x:Name="cbWriteWOResponds" IsEnabled="False" />
+            <CheckBox Content="Notify"               IsChecked="{x:Bind Characteristic.HasNotifyDescriptor, Mode=TwoWay}" x:Name="cbNotify" IsEnabled="False" />
+            <CheckBox Content="Indicate"             IsChecked="{x:Bind Characteristic.HasIndicateDescriptor, Mode=TwoWay}" x:Name="cbIndicate"  IsEnabled="False" />
+        </StackPanel>
+
+        <Button Content="{x:Bind NotifyButtonText}" Click="{x:Bind Characteristic.Characteristic.NotifyValue}" Visibility="{x:Bind NotifyButtonVisibility}" Margin="0,0,5,0"/>
+        <!--<Button Content="Indicate" Click="{x:Bind Characteristic.Characteristic.NotifyValue}" Margin="5,0,0,0"/>-->
+            
+    </StackPanel>
+
+</UserControl>

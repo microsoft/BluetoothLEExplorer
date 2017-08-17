@@ -1,0 +1,116 @@
+﻿<Page x:Class="BluetoothLEExplorer.Views.VirtualPeripheralPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ggs="using:GattServicesLibrary"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d">
+
+    <Page.DataContext>
+        <vm:VirtualPeripheralPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+    <Page.Resources>
+        <converters:ValueWhenConverter x:Key="VisibleWhenTrueConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="VisibleWhenFalseConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>False</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+    </Page.Resources>
+    
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" /> 
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" /> 
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Virtual Peripheral">
+
+            <!--  secondary commands  -->
+            <controls:PageHeader.SecondaryCommands>
+                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+            </controls:PageHeader.SecondaryCommands>
+
+        </controls:PageHeader>
+
+        <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource VisibleWhenFalseConverter}}">
+            <TextBlock Text="Peripheral mode is not supported on this device" />
+        </RelativePanel>
+
+        <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}">
+            <StackPanel x:Name="NewService" Orientation="Horizontal" >
+                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableServices}" SelectedValue="{x:Bind ViewModel.NewSelectedService, Mode=TwoWay}" Margin="0,0,5,0"/>
+                <Button Content="Add Service" Click="{x:Bind ViewModel.CreateService}" Margin="5,0,0,0"/>
+            </StackPanel>
+            <GridView RelativePanel.Below="NewService" 
+                      ItemsSource="{x:Bind ViewModel.Context.CreatedServices, Mode=OneWay}"
+                      Padding="10" SelectedItem="{x:Bind ViewModel.Context.SelectedGattServerService, Mode=TwoWay}" 
+                      SelectionChanged="{x:Bind ViewModel.NavigateToService, Mode=OneWay}" >
+               <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:GenericGattServiceViewModel">
+                        <RelativePanel Height="200" Width="150" Padding="5" BorderBrush="Black" BorderThickness="2"
+                              VerticalAlignment="Top" HorizontalAlignment="Left">
+                            <TextBlock x:Name="Name" Text="{x:Bind Service.Name}" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"/>
+                            <ToggleSwitch RelativePanel.Below="Name" x:Name="Switch"  Header="Publishing" IsOn="{x:Bind IsPublishing, Mode=TwoWay}" />
+                            <Button x:Name="Close" Content="X" Click="{x:Bind RemoveThisFromContext}" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+                        </RelativePanel>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </RelativePanel>
+
+    </RelativePanel>
+</Page>
+

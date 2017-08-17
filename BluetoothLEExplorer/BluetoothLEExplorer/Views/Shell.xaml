@@ -1,0 +1,78 @@
+<Page x:Class="BluetoothLEExplorer.Views.Shell"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Controls="using:Template10.Controls"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:views="using:BluetoothLEExplorer.Views"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels"
+      xmlns:myconverters="using:BluetoothLEExplorer.Services.Converters"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      mc:Ignorable="d">
+
+    <Page.DataContext>
+        <vm:ShellViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <myconverters:ShellFontConverter x:Key="StrikethroughConverter" />
+    </Page.Resources>
+
+    <Controls:HamburgerMenu x:Name="MyHamburgerMenu"
+                            VisualStateNarrowMinWidth="{StaticResource NarrowMinWidth}"
+                            VisualStateNormalMinWidth="{StaticResource NormalMinWidth}"
+                            >
+        
+        
+
+        <Controls:HamburgerMenu.PrimaryButtons>
+            <!--  mainpage button  -->
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:Discover" >
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48"
+                                Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                               Text="Discover and Pair" TextDecorations="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:VirtualPeripheralPage" >
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48"
+                                Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                               Text="Virtual Peripheral" TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:Beacon" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48"
+                                Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                               Text="Beacon"/>
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+        </Controls:HamburgerMenu.PrimaryButtons>
+
+        <Controls:HamburgerMenu.SecondaryButtons>
+            <!--  settingspage button  -->
+            <Controls:HamburgerButtonInfo x:Name="SettingsButton" PageParameter="0"
+                                          PageType="views:SettingsPage">
+                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <SuppressNavigationTransitionInfo />
+                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48"
+                                Symbol="Setting" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                               Text="Settings" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+        </Controls:HamburgerMenu.SecondaryButtons>
+
+    </Controls:HamburgerMenu>
+
+</Page>
+
