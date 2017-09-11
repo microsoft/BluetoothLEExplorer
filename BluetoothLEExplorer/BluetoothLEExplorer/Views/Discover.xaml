@@ -128,7 +128,7 @@
         </controls:PageHeader>
 
         <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource VisibleWhenFalseConverter}}">
-            <TextBlock Text="Center role is not supported on this device" />
+            <TextBlock Text="Central role is not supported on this device" />
         </RelativePanel>
 
         <ProgressBar x:Name="progressBar" 
