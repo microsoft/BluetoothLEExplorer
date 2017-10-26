@@ -207,6 +207,19 @@ namespace BluetoothLEExplorer.Models
 
             try
             {
+                // Request the necessary access permissions for the service and abort
+                // if permissions are denied.
+                GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+                if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
+                {
+                    string error = " - Error: " + status.ToString();
+                    Name += error;
+                    sb.Append(error);
+                    Debug.WriteLine(sb.ToString());
+
+                    return;
+                }
+
                 CancellationTokenSource tokenSource = new CancellationTokenSource(5000);
                 var t = Task.Run(() => Service.GetCharacteristicsAsync(Windows.Devices.Bluetooth.BluetoothCacheMode.Uncached), tokenSource.Token);
 
@@ -246,11 +259,6 @@ namespace BluetoothLEExplorer.Models
                         return;
                     }
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // Bug 9145823:GetCharacteristicsAsync throw System.UnauthorizedAccessException when querying GenericAccess Service Characteristics
-                Name += " - Unauthorized Access";
             }
             catch (Exception ex)
             {
