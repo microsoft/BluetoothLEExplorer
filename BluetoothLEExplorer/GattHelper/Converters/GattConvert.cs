@@ -136,7 +136,10 @@ namespace GattHelper.Converters
             DataReader reader = DataReader.FromBuffer(buffer);
             reader.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf16LE;
             reader.ByteOrder = Windows.Storage.Streams.ByteOrder.LittleEndian;
-            return reader.ReadString(buffer.Length);
+
+            // UTF16 characters are 2 bytes long and ReadString takes the character count,
+            // divide the buffer length by 2.
+            return reader.ReadString(buffer.Length / 2);
         }
 
         public static Int16 ToInt16(IBuffer buffer)
