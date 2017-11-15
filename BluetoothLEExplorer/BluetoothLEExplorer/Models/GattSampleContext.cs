@@ -232,7 +232,7 @@ namespace BluetoothLEExplorer.Models
 
             if(adapter ==  null)
             {
-                MessageDialog msg = new MessageDialog("Error getting access to Bluetooth adaptor. Do you have a have bluetooth enabled?", "Error");
+                MessageDialog msg = new MessageDialog("Error getting access to Bluetooth adapter. Do you have a have bluetooth enabled?", "Error");
                 await msg.ShowAsync();
 
                 IsPeripheralRoleSupported = false;
