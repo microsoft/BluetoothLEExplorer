@@ -215,6 +215,21 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        // Make this variable static so we only query IsPropertyPresent once
+        private static bool isSecureConnectionSupported = ApiInformation.IsPropertyPresent("Windows.Devices.Bluetooth.BluetoothLEDevice", "WasSecureConnectionUsedForPairing");
+
+        /// <summary>
+        /// Gets a value indicating if the version of Windows on this machine supports
+        /// secure connections.
+        /// </summary>
+        public bool IsSecureConnectionSupported
+        {
+            get
+            {
+                return isSecureConnectionSupported;
+            }
+        }
+
         /// <summary>
         /// Prevents a default instance of the <see cref="GattSampleContext" /> class from being created.
         /// </summary>
@@ -457,7 +472,7 @@ namespace BluetoothLEExplorer.Models
                 deviceWatcher.EnumerationCompleted -= DeviceWatcher_EnumerationCompleted;
                 deviceWatcher.Stopped -= DeviceWatcher_Stopped;
 
-                advertisementWatcher.Received += AdvertisementWatcher_Received;
+                advertisementWatcher.Received -= AdvertisementWatcher_Received;
 
                 // Stop the watchers
                 deviceWatcher.Stop();
