@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>DCBC2F4C73DE671847F017A13666994B37C0EC04</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>323288B7D084AC415BB61A69FE711C9BB0DEB132</PackageCertificateThumbprint>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
@@ -94,7 +94,7 @@
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageCertificateKeyFile>TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>BluetoothLEExplorer_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
@@ -200,7 +200,6 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <None Include="TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -304,6 +303,9 @@
     <PackageReference Include="Template10">
       <Version>1.1.12</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BluetoothLEExplorer_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
