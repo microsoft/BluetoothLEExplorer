@@ -29,6 +29,18 @@ namespace BluetoothLEExplorer.ViewModels
         public ObservableBluetoothLEDevice Device { get; private set; } = GattSampleContext.Context.SelectedBluetoothLEDevice;
 
         /// <summary>
+        /// Gets a value indicating if the version of Windows on this machine supports
+        /// secure connections.
+        /// </summary>
+        public bool IsSecureConnectionSupported
+        {
+            get
+            {
+                return context.IsSecureConnectionSupported;
+            }
+        }
+
+        /// <summary>
         /// Source for <see cref="ErrorText"/>
         /// </summary>
         private string errorText = String.Empty;

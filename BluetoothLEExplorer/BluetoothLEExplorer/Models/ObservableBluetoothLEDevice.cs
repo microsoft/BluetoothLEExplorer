@@ -200,6 +200,9 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        // Make this variable static so we only query IsPropertyPresent once
+        private static bool isSecureConnectionSupported = ApiInformation.IsPropertyPresent("Windows.Devices.Bluetooth.BluetoothLEDevice", "IsSecureConnectionPaired");
+
         /// <summary>
         /// Source for <see cref="Services"/>
         /// </summary>
@@ -487,6 +490,8 @@ namespace BluetoothLEExplorer.Models
                         IsPaired = DeviceInfo.Pairing.IsPaired;
                         IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
 
+                        UpdateSecureConnectionStatus();
+
                         Name = BluetoothLEDevice.Name;
 
                         // Get all the services for this device
@@ -603,6 +608,7 @@ namespace BluetoothLEExplorer.Models
             {
                 IsPaired = DeviceInfo.Pairing.IsPaired;
                 IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
+                UpdateSecureConnectionStatus();
             });
         }
 
@@ -674,6 +680,22 @@ namespace BluetoothLEExplorer.Models
             DeviceInfo.Update(deviceUpdate);
 
             OnPropertyChanged(new PropertyChangedEventArgs("DeviceInfo"));
+        }
+
+        /// <summary>
+        /// Helper method which checks to see if the Secure Connection APIs are supported
+        /// and updates the current status.
+        /// </summary>
+        private void UpdateSecureConnectionStatus()
+        {
+            if (isSecureConnectionSupported)
+            {
+                IsSecureConnection = BluetoothLEDevice.WasSecureConnectionUsedForPairing;
+            }
+            else
+            {
+                IsSecureConnection = false;
+            }
         }
     }
 }

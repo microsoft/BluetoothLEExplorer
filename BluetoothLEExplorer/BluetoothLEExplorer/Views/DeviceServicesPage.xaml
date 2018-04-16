@@ -95,6 +95,10 @@
                     <Run Text="Number of Services:" />
                     <Run Text="{x:Bind ViewModel.Device.Services.Count, Mode=OneWay}" />
                 </TextBlock>
+                <TextBlock Visibility="{x:Bind ViewModel.IsSecureConnectionSupported, Converter={StaticResource VisibleWhenTrueConverter}}" >
+                    <Run Text="BT 4.2 Secure Connection:" />
+                    <Run Text="{x:Bind ViewModel.Device.IsSecureConnection, Mode=OneWay}" />
+                </TextBlock>
             </StackPanel>
 
             <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" >
@@ -131,7 +135,6 @@
                                             </TextBlock>
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
-                                
                                 </ListView>
                             </StackPanel>
                         </DataTemplate>
@@ -139,15 +142,6 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
-        <SemanticZoom Margin="0,9,-118,0">
-            <SemanticZoom.ZoomedInView>
-                <GridView ScrollViewer.IsHorizontalScrollChainingEnabled="False" ScrollViewer.IsVerticalScrollChainingEnabled="False"/>
-            </SemanticZoom.ZoomedInView>
-            <SemanticZoom.ZoomedOutView>
-                <GridView ScrollViewer.IsHorizontalScrollChainingEnabled="False" ScrollViewer.IsVerticalScrollChainingEnabled="False"/>
-            </SemanticZoom.ZoomedOutView>
-        </SemanticZoom>
-
     </RelativePanel>
 </Page>
 
