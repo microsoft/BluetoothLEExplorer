@@ -36,17 +36,6 @@ namespace GattServicesLibrary.Characteristics
         }
 
         /// <summary>
-        /// Read request callback to update the value
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        protected override void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
-        {
-            System.Diagnostics.Debug.WriteLine("Entering MSFTNotifyRequest.Characteristic_ReadRequested");
-            base.Characteristic_ReadRequested(sender, args);
-        }
-
-        /// <summary>
         /// Override so we can update the value before notifying or indicating the client
         /// </summary>
         public override void NotifyValue()
