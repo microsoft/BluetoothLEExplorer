@@ -157,6 +157,43 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
+        /// Gets if the device is connectable
+        /// </summary>
+        public bool IsConnectable
+        {
+            get
+            {
+                return DeviceInfo.Properties.Keys.Contains("System.Devices.Aep.Bluetooth.Le.IsConnectable") &&
+                            (bool)DeviceInfo.Properties["System.Devices.Aep.Bluetooth.Le.IsConnectable"];
+            }
+        }
+
+        /// <summary>
+        /// Source for <see cref="LastSeenTime"/>
+        /// </summary>
+        private DateTime lastSeenTime;
+
+        /// <summary>
+        /// Gets or sets a value indicating the last time an advertisement was seen from the device
+        /// </summary>
+        public DateTime LastSeenTime
+        {
+            get
+            {
+                return lastSeenTime;
+            }
+
+            set
+            {
+                if (lastSeenTime != value)
+                {
+                    lastSeenTime = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("LastSeenTime"));
+                }
+            }
+        }
+
+        /// <summary>
         /// Source for <see cref="IsPaired"/>
         /// </summary>
         private bool isPaired;
@@ -201,7 +238,7 @@ namespace BluetoothLEExplorer.Models
         }
 
         // Make this variable static so we only query IsPropertyPresent once
-        private static bool isSecureConnectionSupported = ApiInformation.IsPropertyPresent("Windows.Devices.Bluetooth.BluetoothLEDevice", "IsSecureConnectionPaired");
+        private static bool isSecureConnectionSupported = ApiInformation.IsPropertyPresent("Windows.Devices.Bluetooth.BluetoothLEDevice", "WasSecureConnectionUsedForPairing");
 
         /// <summary>
         /// Source for <see cref="Services"/>
@@ -425,9 +462,14 @@ namespace BluetoothLEExplorer.Models
 
         private void ObservableBluetoothLEDevice_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == "DeviceInfo")
+            if (e.PropertyName == "DeviceInfo")
             {
-                if(DeviceInfo.Properties.ContainsKey("System.Devices.Aep.SignalStrength") && DeviceInfo.Properties["System.Devices.Aep.SignalStrength"] != null)
+                if (DeviceInfo.Properties.ContainsKey("System.Devices.Aep.Bluetooth.LastSeenTime") && (DeviceInfo.Properties["System.Devices.Aep.Bluetooth.LastSeenTime"] != null))
+                {
+                    LastSeenTime = ((System.DateTimeOffset)DeviceInfo.Properties["System.Devices.Aep.Bluetooth.LastSeenTime"]).UtcDateTime;
+                }
+
+                if (DeviceInfo.Properties.ContainsKey("System.Devices.Aep.SignalStrength") && (DeviceInfo.Properties["System.Devices.Aep.SignalStrength"] != null))
                 {
                     RSSI = (int)DeviceInfo.Properties["System.Devices.Aep.SignalStrength"];
                 }
@@ -496,7 +538,18 @@ namespace BluetoothLEExplorer.Models
 
                         // Get all the services for this device
                         CancellationTokenSource GetGattServicesAsyncTokenSource = new CancellationTokenSource(5000);
-                        var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached), GetGattServicesAsyncTokenSource.Token);
+                        
+                        BluetoothCacheMode cacheMode;
+                        if (IsConnectable == true)
+                        {
+                            cacheMode = BluetoothCacheMode.Uncached;
+                        }
+                        else
+                        {
+                            cacheMode = BluetoothCacheMode.Cached;
+                        }
+
+                        var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(cacheMode), GetGattServicesAsyncTokenSource.Token);
 
                         result = await GetGattServicesAsyncTask.Result;
 
@@ -508,7 +561,7 @@ namespace BluetoothLEExplorer.Models
                             System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
                             foreach (var serv in result.Services)
                             {
-                                Services.Add(new ObservableGattDeviceService(serv));
+                                Services.Add(new ObservableGattDeviceService(serv, cacheMode));
                             }
 
                             ServiceCount = Services.Count();
@@ -620,12 +673,19 @@ namespace BluetoothLEExplorer.Models
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                 Windows.UI.Core.CoreDispatcherPriority.Normal, 
                 async () =>
-            {
-                DeviceThumbnail deviceThumbnail = await DeviceInfo.GetGlyphThumbnailAsync();
-                BitmapImage glyphBitmapImage = new BitmapImage();
-                await glyphBitmapImage.SetSourceAsync(deviceThumbnail);
-                Glyph = glyphBitmapImage;
-            });
+                {
+                    try
+                    {
+                        DeviceThumbnail deviceThumbnail = await DeviceInfo.GetGlyphThumbnailAsync();
+                        BitmapImage glyphBitmapImage = new BitmapImage();
+                        await glyphBitmapImage.SetSourceAsync(deviceThumbnail);
+                        Glyph = glyphBitmapImage;
+                    }
+                    catch (Exception)
+                    {
+                        Glyph = null;
+                    }
+                });
         }
 
         /// <summary>

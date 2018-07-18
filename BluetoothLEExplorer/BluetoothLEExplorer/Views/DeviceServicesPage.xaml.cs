@@ -3,7 +3,11 @@
 // </copyright>
 //----------------------------------------------------------------------------------------------
 using BluetoothLEExplorer.Models;
+using System;
+using Windows.UI;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace BluetoothLEExplorer.Views
@@ -30,6 +34,26 @@ namespace BluetoothLEExplorer.Views
         private void CharacteristicsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             ViewModel.SelectedCharacteristic = (ObservableGattCharacteristics)e.ClickedItem;
+        }        
+    }
+
+    public class BackgroundColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool && (bool)value == false)
+            {
+                return new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                return new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
     }
 }

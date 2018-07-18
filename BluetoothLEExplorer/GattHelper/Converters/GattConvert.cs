@@ -154,6 +154,11 @@ namespace GattHelper.Converters
 
         public static int ToInt32(IBuffer buffer)
         {
+            if (buffer.Length > sizeof(Int32))
+            {
+                throw new ArgumentException("Cannot convert to Int32, buffer is too large");
+            }
+
             byte[] data = new byte[buffer.Length];
             DataReader reader = DataReader.FromBuffer(buffer);
             reader.ByteOrder = ByteOrder.LittleEndian;
@@ -164,6 +169,11 @@ namespace GattHelper.Converters
 
         public static Int64 ToInt64(IBuffer buffer)
         { 
+            if (buffer.Length > sizeof(Int64))
+            {
+                throw new ArgumentException("Cannot convert to Int64, buffer is too large");
+            }
+
             byte[] data = new byte[buffer.Length];
             DataReader reader = DataReader.FromBuffer(buffer);
             reader.ByteOrder = ByteOrder.LittleEndian;
