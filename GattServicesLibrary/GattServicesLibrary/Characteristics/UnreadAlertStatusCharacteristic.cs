@@ -47,8 +47,6 @@ namespace GattServicesLibrary.Characteristics
                 return;
             }
 
-            //notificationListener.NotificationChanged -= NotificationListener_NotificationChanged;
-
             enabled = false;
         }
 
@@ -59,28 +57,8 @@ namespace GattServicesLibrary.Characteristics
                 return;
             }
 
-            //if (notificationListener.GetAccessStatus() != UserNotificationListenerAccessStatus.Allowed)
-            //{
-            //    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-            //        CoreDispatcherPriority.Normal,
-            //        async () =>
-            //        {
-            //            var status = await notificationListener.RequestAccessAsync();
-            //        });
-            //}
-
-            //notificationListener.NotificationChanged += NotificationListener_NotificationChanged;
-
             enabled = true;
         }
-
-        //private async void NotificationListener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
-        //{
-        //    var notifications = await notificationListener.GetNotificationsAsync(NotificationKinds.Toast);
-        //    var value = new byte[] { (byte)AlertCategoryId.SimpleAlert, Convert.ToByte(notifications.Count) };
-        //    Value = GattConvert.ToIBuffer(value);
-        //    NotifyValue();
-        //}
 
         public /*async*/ void NotifyImmediatelyForCategory(AlertCategoryId categoryId)
         {
@@ -88,18 +66,6 @@ namespace GattServicesLibrary.Characteristics
             {
                 return;
             }
-
-            //if (notificationListener.GetAccessStatus() != UserNotificationListenerAccessStatus.Allowed)
-            //{
-            //    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-            //        CoreDispatcherPriority.Normal,
-            //        async () =>
-            //        {
-            //            var status = await notificationListener.RequestAccessAsync();
-            //        });
-            //}
-
-            //var notifications = await notificationListener.GetNotificationsAsync(NotificationKinds.Toast);
 
             var service = base.ParentService as AlertNotificationService;
 
