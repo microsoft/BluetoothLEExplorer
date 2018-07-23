@@ -72,6 +72,29 @@ namespace BluetoothLEExplorer.ViewModels
         }
 
         /// <summary>
+        /// Source for <see cref="SelectedDescriptor"/>
+        /// </summary>
+        private ObservableGattDescriptors selectedDescriptor;
+
+        /// <summary>
+        /// Gets or sets the currently selected descriptor
+        /// </summary>
+        public ObservableGattDescriptors SelectedDescriptor
+        {
+            get
+            {
+                return selectedDescriptor;
+            }
+
+            set
+            {
+                Set(ref selectedDescriptor, value, "SelectedDescriptor");
+                context.SelectedDescriptor = SelectedDescriptor;
+                //NavigationService.Navigate(typeof(DescriptorPage));
+            }
+        }
+
+        /// <summary>
         /// Source for <see cref="Properties"/>
         /// </summary>
         private string properties = "None";

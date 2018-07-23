@@ -228,7 +228,7 @@
 
             <RelativePanel Grid.Row="2" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.CharacteristicCanWrite, Converter={StaticResource VisibleWhenTrueConverter}}">
                 <TextBlock x:Name="WriteValueText" Text="Write Value: " Margin="0,5,5,5" VerticalAlignment="Center" Width="100" />
-                <TextBox x:Name="WriteValue" Text="{x:Bind ViewModel.ValueToWrite, Mode=TwoWay}" VerticalAlignment="Center" Width="75" Margin="5" 
+                <TextBox x:Name="WriteValue" Text="{x:Bind ViewModel.ValueToWrite, Mode=TwoWay}" VerticalAlignment="Center" Width="100" Margin="5" 
                          RelativePanel.RightOf="WriteValueText" TextChanging="WriteValue_TextChanging" 
                          />
                 <Button x:Name="WriteButton" Content="Write" Click="{x:Bind ViewModel.WriteValue}" Margin="5" RelativePanel.RightOf="WriteValue" />
@@ -266,27 +266,46 @@
                         Visibility="{x:Bind ViewModel.IndicateError, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" />
                 </StackPanel>
             </StackPanel>
+
+            <StackPanel Grid.Row="5">
+                <ListView
+                        x:Name="DescriptorsListView"
+                        IsItemClickEnabled="True"
+                        SelectionMode="Single"
+                        ItemsSource="{x:Bind ViewModel.Characteristic.Descriptors}"
+                        ItemClick="DescriptorsListView_ItemClick">
+                    <ListView.ItemTemplate >
+                        <DataTemplate x:DataType="models:ObservableGattDescriptors" >
+                            <TextBlock TextWrapping="WrapWholeWords">
+                            <Run x:Name="DescriptorText" Text="Descriptor Name:" />
+                            <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" />
+                            <Run Text=" - " />
+                            <Run x:Name="DescriptorHandleText" Text="Handle: " />
+                            <Run Text="{x:Bind Descriptor.AttributeHandle, Mode=OneWay}" FontWeight="Bold" />
+                            <Run Text=" - " />
+                            <Run x:Name="DescriptorValueText" Text="Value: " />
+                            <Run Text="{x:Bind Value, Mode=OneWay}" FontWeight="Bold" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
         </Grid>
 
         <RelativePanel x:Name="Notify" Background="LightBlue" Height="60"
-                RelativePanel.AlignLeftWithPanel="True" 
-                RelativePanel.AlignRightWithPanel="True"
-                RelativePanel.AlignBottomWithPanel="True">
+                    RelativePanel.AlignLeftWithPanel="True" 
+                    RelativePanel.AlignRightWithPanel="True"
+                    RelativePanel.AlignBottomWithPanel="True">
 
             <ScrollViewer Padding="10,0,0,0"
-                RelativePanel.AlignLeftWithPanel="True"
-                RelativePanel.AlignTopWithPanel="True"
-                RelativePanel.AlignRightWithPanel="True"
-                RelativePanel.AlignBottomWithPanel="True">
+                    RelativePanel.AlignLeftWithPanel="True"
+                    RelativePanel.AlignTopWithPanel="True"
+                    RelativePanel.AlignRightWithPanel="True"
+                    RelativePanel.AlignBottomWithPanel="True">
 
                 <ItemsControl Padding="10,0,10,0"  ItemsSource="{x:Bind ViewModel.NotifyUser}" />
             </ScrollViewer>
         </RelativePanel>
-        <!--<Rectangle x:Name="Notify" Fill="Orange" Margin="-10,0,0,-10" Height="60"  
-                   RelativePanel.AlignLeftWithPanel="True" 
-                   RelativePanel.AlignRightWithPanel="True"
-                   RelativePanel.AlignBottomWithPanel="True"/>-->
-
     </RelativePanel>
 </Page>
 

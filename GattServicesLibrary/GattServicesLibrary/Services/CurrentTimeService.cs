@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using GattServicesLibrary.Helpers;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using System.ComponentModel;
 
 namespace GattServicesLibrary.Services
 {
@@ -26,68 +27,48 @@ namespace GattServicesLibrary.Services
         }
 
         /// <summary>
-        /// Current time characteristics
+        /// Current time characteristic
         /// </summary>
-        private GattLocalCharacteristic currentTime;
+        private GenericGattCharacteristic currentTime;
 
         /// <summary>
-        /// Starts the Current time service
+        /// Gets or sets the currentTime
         /// </summary>
-        /// <param name="connectable">True, starts the service as Connectable. False, starts the service as only Discoverable</param>
-        public override async void Start(bool connectable)
+        public GenericGattCharacteristic CurrentTime
         {
-            await CreateServiceProvider(GattServiceUuids.CurrentTime);
-            GattLocalCharacteristicResult result = await ServiceProvider.Service.CreateCharacteristicAsync(GattCharacteristicUuids.CurrentTime, 
-                                                                                                           PlainReadNotifyParameters);
-            GattServicesHelper.GetCharacteristicsFromResult(result, ref currentTime);
-            if (currentTime != null)
+            get
             {
-                currentTime.ReadRequested += ReadCharacteristicReadRequested;
+                return currentTime;
             }
 
-            base.Start(connectable);
-        }
-
-        /// <summary>
-        /// Event handler for reading Current time
-        /// </summary>
-        /// <param name="sender">The source of the Write request</param>
-        /// <param name="args">Details about the request</param>
-        private async void ReadCharacteristicReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
-        {
-            var request = await args.GetRequestAsync();
-            request.RespondWithValue(GattServicesHelper.ConvertValueToBuffer(DateTime.Now));
-        }
-
-        /// <summary>
-        /// Event handler for notifying the current time characteristics value
-        /// </summary>
-        public async void NotifyValue()
-        {
-            await currentTime.NotifyValueAsync(GattServicesHelper.ConvertValueToBuffer(DateTime.Now));
-        }
-
-        /// <summary>
-        /// Stops the already running Current time services
-        /// </summary>
-        public override void Stop()
-        {
-            if (currentTime != null)
+            set
             {
-                currentTime.ReadRequested -= ReadCharacteristicReadRequested;
-                currentTime = null;
+                if (currentTime != value)
+                {
+                    currentTime = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("CurrentTime"));
+                }
             }
-
-            base.Stop();
         }
 
         /// <summary>
         /// Asynchronous initialization
         /// </summary>
         /// <returns>Initialization Task</returns>
-        public override Task Init()
+        public override async Task Init()
         {
-            throw new NotImplementedException();
+            await CreateServiceProvider(GattServiceUuids.CurrentTime);
+
+            GattLocalCharacteristicResult result = await ServiceProvider.Service.CreateCharacteristicAsync(
+                GattCharacteristicUuids.CurrentTime,
+                PlainReadNotifyParameters);
+
+            GattLocalCharacteristic currentTimeCharacterisitic = null;
+            GattServicesHelper.GetCharacteristicsFromResult(result, ref currentTimeCharacterisitic);
+            if (currentTimeCharacterisitic != null)
+            {
+                CurrentTime = new Characteristics.CurrentTimeCharacteristic(currentTimeCharacterisitic, this);
+            }
         }
     }
 }

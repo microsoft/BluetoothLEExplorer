@@ -10,7 +10,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:converters="using:Template10.Converters"
       xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d" 
-      xmlns:models="using:BluetoothLEExplorer.Models">
+      xmlns:models="using:BluetoothLEExplorer.Models"
+      xmlns:release="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,5)"
+      xmlns:insider="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,5)"
+      >
 
     <Page.DataContext>
         <vm:DiscoverViewModel x:Name="ViewModel" />
@@ -181,15 +184,11 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:ObservableBluetoothLEDevice" >
-                        <Grid Height="200" Width="150" Padding="5" Holding="Grid_Holding" RightTapped="Grid_RightTapped" Background="{ThemeResource CustomColor}">
-                            <FlyoutBase.AttachedFlyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="Pair" Click="{x:Bind DoInAppPairing}" />
-                                </MenuFlyout>
-                            </FlyoutBase.AttachedFlyout>
+                        <Grid Height="200" Width="150" Padding="5" Holding="Grid_Holding" Background="{ThemeResource CustomColor}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
@@ -224,6 +223,9 @@
                                 <TextBlock Foreground="Black">
                                     Connected: <Run Text="{x:Bind IsConnected, Mode=OneWay}"/>
                                 </TextBlock>
+                                <TextBlock insider:Visibility="Visible" release:Visibility="Collapsed" Foreground="Black">
+                                    Last Seen: <Run Text="{x:Bind LastSeenTime, Mode=OneWay}"/>
+                                </TextBlock>
                                 <TextBlock Foreground="Black">
                                     Paired: <Run Text="{x:Bind IsPaired, Mode=OneWay}"/>
                                 </TextBlock>
@@ -233,6 +235,11 @@
                                 <TextBlock>
                                     RSSI: <Run Text="{x:Bind RSSI, Mode=OneWay}"/>
                                 </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+                                <Button Name="Pair" Click="{x:Bind DoInAppPairing}" HorizontalAlignment="Center">
+                                    Pair
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

@@ -1,0 +1,135 @@
+﻿<Page x:Class="BluetoothLEExplorer.Views.AlertNotificationServicePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels" 
+      xmlns:converters="using:Template10.Converters"
+      xmlns:customControls="using:BluetoothLEExplorer.CustomControls"
+      mc:Ignorable="d"
+      xmlns:models="using:BluetoothLEExplorer.Models">
+
+    <Page.DataContext>
+        <vm:AlertNotificationServicePageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                        <!-- 0 -->
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                        <Setter Target="c3.(RelativePanel.Below)" Value="c2"/>
+                        <Setter Target="c2.(RelativePanel.Below)" Value="c1"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="VisualStateTileNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                        <!-- 0 -->
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                        <Setter Target="c2.(RelativePanel.Below)" Value="c1"/>
+                        <Setter Target="c3.(RelativePanel.Below)" Value="c2"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="885" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                        <Setter Target="c3.(RelativePanel.Below)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.RightOf)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.AlignTopWith)" Value="c1"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                        <!-- 1200 -->
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                        <Setter Target="c3.(RelativePanel.Below)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.RightOf)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.AlignTopWith)" Value="c1"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStatTileWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1475" />
+                        <!-- 1200 -->
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                        <Setter Target="c2.(RelativePanel.RightOf)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.AlignTopWith)" Value="c1"/>
+                        <Setter Target="c3.(RelativePanel.RightOf)" Value="c2"/>
+                        <Setter Target="c3.(RelativePanel.AlignTopWith)" Value="c1"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="VisualStateTileReallyWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1900" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                        <Setter Target="c2.(RelativePanel.LeftOf)" Value=""/>
+                        <Setter Target="c2.(RelativePanel.RightOf)" Value="c1"/>
+                        <Setter Target="c2.(RelativePanel.AlignTopWith)" Value="c1"/>
+                        <Setter Target="c3.(RelativePanel.RightOf)" Value="c2"/>
+                        <Setter Target="c3.(RelativePanel.AlignTopWith)" Value="c1"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Alert Notification Service">
+
+            <!--  secondary commands  -->
+            <controls:PageHeader.SecondaryCommands>
+                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+            </controls:PageHeader.SecondaryCommands>
+
+        </controls:PageHeader>
+
+        <StackPanel x:Name="SwitchHeader" RelativePanel.Below="pageHeader" Padding="10">
+            <TextBlock Text="{x:Bind ViewModel.Service.Name}" />
+            <ToggleSwitch x:Name="Switch" RelativePanel.Below="pageHeader" Header="Discoverable and Connectable" IsOn="{x:Bind ViewModel.ServiceVM.IsPublishing, Mode=TwoWay}" Margin="5"/>
+        </StackPanel>
+
+        <ScrollViewer 
+            RelativePanel.Below="SwitchHeader"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.AlignBottomWithPanel="True">
+            <RelativePanel>
+                <customControls:GattLocalCharacteristicControl x:Name="c1" Characteristic="{x:Bind ViewModel.NewAlert, Mode=OneWay}" Margin="5" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True"/>
+                <customControls:GattLocalCharacteristicControl x:Name="c2" Characteristic="{x:Bind ViewModel.UnreadAlertStatus, Mode=OneWay}" Margin="5"/>
+                <customControls:GattLocalCharacteristicControl x:Name="c3" Characteristic="{x:Bind ViewModel.AlertNotificationControlPoint, Mode=OneWay}" Margin="5"/>
+            </RelativePanel>
+        </ScrollViewer>
+    </RelativePanel>
+</Page>
+

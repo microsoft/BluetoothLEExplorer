@@ -55,29 +55,11 @@ namespace GattServicesLibrary.Characteristics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        protected override async void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
+        protected override bool ReadRequested(GattSession session, GattReadRequest request)
         {
-            Deferral deferral = args.GetDeferral();
-
-            Debug.WriteLine($"MSFTLongReadCharacteristic: ReadRequested - MaxPduSize {args.Session.MaxPduSize}");
-            await UpdateValue(args);
-
-            base.Characteristic_ReadRequested(sender, args, deferral);
-        }
-
-        /// <summary>
-        /// Updates the Value which is what gets send back by the <see cref="base.Characteristic_ReadRequested"/>. It verifies that the 
-        /// source data is bigger than a single read request so that a ReadBlobRequest has to be done
-        /// </summary>
-        /// <param name="args"></param>
-        private async Task UpdateValue(GattReadRequestedEventArgs args)
-        {
-
             DataWriter writer = new DataWriter();
-            int maxPayloadSize = args.Session.MaxPduSize - 1;
 
-            // start getting the read request
-            var requestTask = args.GetRequestAsync();
+            int maxPayloadSize = session.MaxPduSize - 1;
 
             // make sure our source data is bigger than a single read request to make sure a ReadBlobRequest is done
             if (longCharacteristicData.Length < maxPayloadSize)
@@ -96,7 +78,6 @@ namespace GattServicesLibrary.Characteristics
             }
 
             // finish getting the read request
-            GattReadRequest request = await requestTask;
             int offset = (int)request.Offset;
 
             // calculate the size of the data we send back
@@ -110,13 +91,19 @@ namespace GattServicesLibrary.Characteristics
 
             // copy from source to target
             Array.Copy(longCharacteristicData, longCharacteristicReadOffset, buffer, 0, chunk);
- 
+
             // write to our internal Value which will be used to send back the data
             writer.WriteBytes(buffer);
+
             readValue = buffer.BytesToString();
             Debug.WriteLine("MicrosoftReadLongCharacteristic: Read request value: {readValue}");
+
+            // Update our characteristics value.
             Value = writer.DetachBuffer();
 
+            // Respond back to the caller.
+            request.RespondWithValue(Value);
+            return true;
         }
     }
 }

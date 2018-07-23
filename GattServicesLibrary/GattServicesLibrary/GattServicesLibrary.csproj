@@ -11,7 +11,7 @@
     <AssemblyName>GattServicesLibrary</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.15063.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -108,6 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharacteristicParameterValues\CharacteristicParameterValueEnums.cs" />
+    <Compile Include="Characteristics\AlertNotificationControlPointCharacteristic.cs" />
+    <Compile Include="Characteristics\UnreadAlertStatusCharacteristic.cs" />
+    <Compile Include="Characteristics\NewAlertCharacteristic.cs" />
+    <Compile Include="Characteristics\CurrentTimeCharacteristic.cs" />
     <Compile Include="Characteristics\BloodPressureFeatureCharacteristic.cs" />
     <Compile Include="Characteristics\BloodPressureMeasurementCharacteristic.cs" />
     <Compile Include="Characteristics\MicrosoftIndicateCharacteristic.cs" />
