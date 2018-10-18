@@ -71,6 +71,22 @@ namespace BluetoothLEExplorer.ViewModels
                 RaisePropertyChanged();
             }
         }
+        /// <summary>
+        /// Gets or sets a value indicating whether caching should be used
+        /// </summary>
+        public bool UseCaching
+        {
+            get
+            {
+                return settings.UseCaching;
+            }
+
+            set
+            {
+                settings.UseCaching = value;
+                RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether light theme should be used

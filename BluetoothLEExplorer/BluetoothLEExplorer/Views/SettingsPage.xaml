@@ -79,7 +79,12 @@
                                       OffContent="Dark theme" OnContent="Light theme"
                                       RelativePanel.AlignLeftWithPanel="True"
                                       RelativePanel.Below="UseShellDrawnBackButtonToggleSwtich" />
-
+                        
+                        <ToggleSwitch x:Name="UseCachingToggleSwitch" Header="Use Caching"
+                                      IsOn="{Binding UseCachingButton, Mode=TwoWay}"
+                                      OffContent="Will always make over the air requests." OnContent="Will use cached values where possible."
+                                      RelativePanel.AlignLeftWithPanel="True"
+                                      RelativePanel.Below="UseLightThemeToggleSwitch" />
                     </RelativePanel>
 
                 </ScrollViewer>
