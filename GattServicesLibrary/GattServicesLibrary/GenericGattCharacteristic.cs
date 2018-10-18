@@ -165,27 +165,10 @@ namespace GattServicesLibrary
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        protected virtual void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
+        private async void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
         {
             // Grab the event deferral before performing any async operations in the handler.
             var deferral = args.GetDeferral();
-
-            Characteristic_ReadRequested(sender, args, deferral);
-        }
-
-        /// <summary>
-        /// Base implementation for the read callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        /// <param name="deferral">The deferral in case a specific implementation had to do async tasks</param>
-        protected virtual async void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args, Deferral deferral = null)
-        {
-            // Grab the event deferral before performing any async operations in the handler.
-            if (deferral == null)
-            {
-                deferral = args.GetDeferral();
-            }
 
             Debug.WriteLine($"({this.GetType()})Entering base.Characteristic_ReadRequested");
 
@@ -193,25 +176,26 @@ namespace GattServicesLibrary
             // This can be accomplished by calling BluetoothLEDevice.RequestAccessAsync(), or by getting the request on the UX thread.
             //
             // Note that subsequent calls to RequestAccessAsync or GetRequestAsync for the same device do not need to be called on the UX thread.
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                CoreDispatcherPriority.Normal,
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(
                 async () =>
                 {
-
                     var request = await args.GetRequestAsync();
-                    request.RespondWithValue(Value);
+
                     Debug.WriteLine($"Characteristic_ReadRequested - Length {request.Length}, State: {request.State}, Offset: {request.Offset}");
+
+                    if (!ReadRequested(args.Session, request))
+                    {
+                        request.RespondWithValue(Value);
+                    }
+
+                    deferral.Complete();
                 });
         }
 
-        /// <summary>
-        /// Base implementation for the write callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        protected virtual void Characteristic_WriteRequested(GattLocalCharacteristic sender, GattWriteRequestedEventArgs args)
+        protected virtual bool ReadRequested(GattSession session, GattReadRequest request)
         {
-            Characteristic_WriteRequested(sender, args, args.GetDeferral());
+            Debug.WriteLine("Request not completed by derrived class.");
+            return false;
         }
 
         /// <summary>
@@ -219,41 +203,40 @@ namespace GattServicesLibrary
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        /// <param name="deferral">The deferral in case a specific implementation had to do async tasks</param>
-        protected virtual async void Characteristic_WriteRequested(GattLocalCharacteristic sender, GattWriteRequestedEventArgs args, Deferral deferral)
+        private async void Characteristic_WriteRequested(GattLocalCharacteristic sender, GattWriteRequestedEventArgs args)
         {
             Debug.WriteLine("Characteristic_WriteRequested: Write Requested");
-            GattWriteRequest request = null;
 
             // Grab the event deferral before performing any async operations in the handler.
-            if (deferral == null)
-            {
-                deferral = args.GetDeferral();
-            }
+            var deferral = args.GetDeferral();
 
             // In order to get the remote request, access to the device must be provided by the user.
             // This can be accomplished by calling BluetoothLEDevice.RequestAccessAsync(), or by getting the request on the UX thread.
             //
             // Note that subsequent calls to RequestAccessAsync or GetRequestAsync for the same device do not need to be called on the UX thread.
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                CoreDispatcherPriority.Normal,
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(
                 async () =>
                 {
                     // Grab the request
-                    request = await args.GetRequestAsync();
+                    var request = await args.GetRequestAsync();
 
-                    // Set the characteristic Value
-                    Value = request.Value;
+                    Debug.WriteLine($"Characteristic_WriteRequested - Length {request.Value.Length}, State: {request.State}, Offset: {request.Offset}");
 
-                    // Respond with completed
-                    if (request.Option == GattWriteOption.WriteWithResponse)
+                    if (!WriteRequested(args.Session, request))
                     {
-                        Debug.WriteLine("Characteristic_WriteRequested: Completing request with responds");
-                        request.Respond();
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Characteristic_WriteRequested: Completing request without responds");
+                        // Set the characteristic Value
+                        Value = request.Value;
+
+                        // Respond with completed
+                        if (request.Option == GattWriteOption.WriteWithResponse)
+                        {
+                            Debug.WriteLine("Characteristic_WriteRequested: Completing request with responds");
+                            request.Respond();
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Characteristic_WriteRequested: Completing request without responds");
+                        }
                     }
 
                     // everything below this is debug. Should implement this on non-UI thread based on
@@ -269,7 +252,15 @@ namespace GattServicesLibrary
                     {
                         Debug.WriteLine($"Characteristic_WriteRequested: New Value: {data.BytesToString()}");
                     }
+
+                    deferral.Complete();
                 });
+        }
+
+        protected virtual bool WriteRequested(GattSession session, GattWriteRequest request)
+        {
+            Debug.WriteLine("Request not completed by derrived class.");
+            return false;
         }
     }
 }

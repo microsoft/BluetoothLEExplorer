@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //----------------------------------------------------------------------------------------------
+using BluetoothLEExplorer.Models;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
@@ -42,20 +43,25 @@ namespace BluetoothLEExplorer.Views
             if (ViewModel.WriteType == ViewModels.CharacteristicPageViewModel.WriteTypes.Hex)
             {
                 int buf;
-                if ((WriteValue.Text != string.Empty) &&
-                    (int.TryParse(WriteValue.Text, System.Globalization.NumberStyles.HexNumber, null, out buf) == false))
+                if (string.IsNullOrWhiteSpace(WriteValue.Text) == false)
                 {
-                    WriteValue.Background = new SolidColorBrush(Windows.UI.Colors.Red);
-                }
-                else
-                {
-                    WriteValue.Background = new SolidColorBrush(Windows.UI.Colors.White);
+                    for(int i = 0; i < WriteValue.Text.Length; i++)
+                    {
+                        if(int.TryParse(WriteValue.Text[i].ToString(), System.Globalization.NumberStyles.AllowHexSpecifier, null, out buf) == false)
+                        {
+                            WriteValue.Background = new SolidColorBrush(Windows.UI.Colors.Red);
+                            return;
+                        }
+                    }
                 }
             }
-            else
-            {
-                WriteValue.Background = new SolidColorBrush(Windows.UI.Colors.White);
-            }
+
+            WriteValue.Background = new SolidColorBrush(Windows.UI.Colors.White);
+        }
+		
+        private void DescriptorsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            ViewModel.SelectedDescriptor = (ObservableGattDescriptors)e.ClickedItem;
         }
     }
 }

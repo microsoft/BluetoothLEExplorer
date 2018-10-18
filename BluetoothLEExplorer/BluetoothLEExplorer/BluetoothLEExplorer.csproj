@@ -11,7 +11,7 @@
     <AssemblyName>BluetoothLEExplorer</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.15063.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>DCBC2F4C73DE671847F017A13666994B37C0EC04</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>323288B7D084AC415BB61A69FE711C9BB0DEB132</PackageCertificateThumbprint>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
@@ -93,6 +93,12 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageCertificateKeyFile>BluetoothLEExplorer_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -103,6 +109,7 @@
     <Compile Include="Models\GattSampleContext.cs" />
     <Compile Include="Models\ObservableBluetoothLEDevice.cs" />
     <Compile Include="Models\ObservableGattCharacteristics.cs" />
+    <Compile Include="Models\ObservableGattDescriptors.cs" />
     <Compile Include="Models\ObservableGattDeviceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Converters\Converters.cs" />
@@ -112,7 +119,9 @@
     <Compile Include="Services\Other\GattProtocolErrorParser.cs" />
     <Compile Include="Services\SettingsServices\SettingsService.cs" />
     <Compile Include="Services\ToastService\ToastService.cs" />
+    <Compile Include="ViewModels\Services\AlertNotificationServicePageViewModel.cs" />
     <Compile Include="ViewModels\Services\BloodPressureServicePageViewModel.cs" />
+    <Compile Include="ViewModels\Services\CurrentTimeServicePageViewModel.cs" />
     <Compile Include="ViewModels\Services\HeartRateServicePageViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="ViewModels\Services\BatteryServicePageViewModel.cs" />
@@ -125,8 +134,14 @@
     <Compile Include="ViewModels\GenericGattServiceViewModel.cs" />
     <Compile Include="ViewModels\GenericGattCharacteristicViewModel.cs" />
     <Compile Include="ViewModels\VirtualPeripheralPageViewModel.cs" />
+    <Compile Include="Views\Services\AlertNotificationServicePage.xaml.cs">
+      <DependentUpon>AlertNotificationServicePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Services\BloodPressureServicePage.xaml.cs">
       <DependentUpon>BloodPressureServicePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Services\CurrentTimeServicePage.xaml.cs">
+      <DependentUpon>CurrentTimeServicePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Services\HeartRateServicePage.xaml.cs">
       <DependentUpon>HeartRateServicePage.xaml</DependentUpon>
@@ -187,7 +202,6 @@
     <Content Include="Assets\Square71x71Logo.scale-400.png" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Help.htm" />
-    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -212,7 +226,15 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Views\Services\AlertNotificationServicePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Services\BloodPressureServicePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Services\CurrentTimeServicePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -298,6 +320,9 @@
     <PackageReference Include="Template10">
       <Version>1.1.12</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BluetoothLEExplorer_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

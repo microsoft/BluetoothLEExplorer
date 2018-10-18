@@ -91,7 +91,7 @@
 
         <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}">
             <StackPanel x:Name="NewService" Orientation="Horizontal" >
-                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableServices}" SelectedValue="{x:Bind ViewModel.NewSelectedService, Mode=TwoWay}" Margin="0,0,5,0"/>
+                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableServices}" SelectedValue="{x:Bind ViewModel.NewSelectedService, Mode=TwoWay}" Margin="0,0,5,0" VerticalAlignment="Stretch"/>
                 <Button Content="Add Service" Click="{x:Bind ViewModel.CreateService}" Margin="5,0,0,0"/>
             </StackPanel>
             <GridView RelativePanel.Below="NewService" 

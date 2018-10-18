@@ -4,10 +4,12 @@
 //----------------------------------------------------------------------------------------------
 using System;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using BluetoothLEExplorer.Services.GattUuidsService;
+using BluetoothLEExplorer.Services.GattUuidHelpers;
 using BluetoothLEExplorer.Services.Other;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
@@ -147,6 +149,59 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
+        /// Source for <see cref="Characteristics"/>
+        /// </summary>
+        private ObservableCollection<ObservableGattDescriptors> descriptors = new ObservableCollection<ObservableGattDescriptors>();
+
+        /// <summary>
+        /// Gets or sets all the descriptors of this characterstic
+        /// </summary>
+        public ObservableCollection<ObservableGattDescriptors> Descriptors
+        {
+            get
+            {
+                return descriptors;
+            }
+
+            set
+            {
+                if (descriptors != value)
+                {
+                    descriptors = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("Descriptors"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Source for <see cref="SelectedDescriptor"/>
+        /// </summary>
+        private ObservableGattDescriptors selectedDescriptor;
+
+        /// <summary>
+        /// Gets or sets the currently selected characteristic
+        /// </summary>
+        public ObservableGattDescriptors SelectedDescriptor
+        {
+            get
+            {
+                return selectedDescriptor;
+            }
+
+            set
+            {
+                if (selectedDescriptor != value)
+                {
+                    selectedDescriptor = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("SelectedDescriptor"));
+
+                    // The SelectedProperty doesn't exist when this object is first created. This takes
+                    // care of adding the correct event handler after the first time it's changed. 
+                    SelectedDescriptor_PropertyChanged();
+                }
+            }
+        }
+        /// <summary>
         /// Source for <see cref="Name"/>
         /// </summary>
         private string name;
@@ -252,6 +307,11 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
+        /// Determines if the SelectedDescriptor_PropertyChanged has been added
+        /// </summary>
+        private bool hasSelectedDescriptorPropertyChangedHandler = false;
+
+        /// <summary>
         /// Initializes a new instance of the<see cref="ObservableGattCharacteristics" /> class.
         /// </summary>
         /// <param name="characteristic">Characteristic this class wraps</param>
@@ -260,16 +320,14 @@ namespace BluetoothLEExplorer.Models
         {
             Characteristic = characteristic;
             Parent = parent;
-            Name = GattUuidsService.ConvertUuidToName(Characteristic.Uuid);
+            Name = GattCharacteristicUuidHelper.ConvertUuidToName(Characteristic.Uuid);
             UUID = Characteristic.Uuid.ToString();
 
             ReadValueAsync();
+            GetAllDescriptors();
 
             characteristic.ValueChanged += Characteristic_ValueChanged;
-
             PropertyChanged += ObservableGattCharacteristics_PropertyChanged;
-
-            return;
         }
 
         /// <summary>
@@ -279,6 +337,7 @@ namespace BluetoothLEExplorer.Models
         {
             characteristic.ValueChanged -= Characteristic_ValueChanged;
             PropertyChanged -= ObservableGattCharacteristics_PropertyChanged;
+            descriptors.Clear();
 
             Cleanup();
         }
@@ -312,7 +371,7 @@ namespace BluetoothLEExplorer.Models
         {
             try
             {
-                GattReadResult result = await Characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
+                GattReadResult result = await Characteristic.ReadValueAsync(Parent.CacheMode);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
@@ -331,6 +390,66 @@ namespace BluetoothLEExplorer.Models
             {
                 Debug.WriteLine("Exception: " + ex.Message);
                 Value = "Exception!";
+            }
+        }
+
+        /// <summary>
+        /// Adds the SelectedDescriptor_PropertyChanged event handler
+        /// </summary>
+        private void SelectedDescriptor_PropertyChanged()
+        {
+            if (hasSelectedDescriptorPropertyChangedHandler == false)
+            {
+                SelectedDescriptor.PropertyChanged += SelectedDescriptor_PropertyChanged;
+                hasSelectedDescriptorPropertyChangedHandler = true;
+            }
+        }
+
+        /// <summary>
+        /// Updates the selected characteristic in the app context
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectedDescriptor_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            GattSampleContext.Context.SelectedDescriptor = SelectedDescriptor;
+        }
+
+        private async void GetAllDescriptors()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ObservableGattCharacteristics::getAllDescriptors: ");
+            sb.Append(Name);
+
+            try
+            {
+                GattDescriptorsResult result = await Characteristic.GetDescriptorsAsync(Parent.CacheMode);
+                if (result.Status == GattCommunicationStatus.Success)
+                {
+                    sb.Append(" - found ");
+                    sb.Append(result.Descriptors.Count);
+                    sb.Append(" descriptors");
+                    Debug.WriteLine(sb);
+                    foreach (GattDescriptor descriptor in result.Descriptors)
+                    {
+                        Descriptors.Add(new ObservableGattDescriptors(descriptor, this));
+                    }
+                }
+                else if (result.Status == GattCommunicationStatus.Unreachable)
+                {
+                    sb.Append(" - failed with Unreachable");
+                    Debug.WriteLine(sb.ToString());
+                }
+                else if (result.Status == GattCommunicationStatus.ProtocolError)
+                {
+                    sb.Append(" - failed with ProtocolError");
+                    Debug.WriteLine(sb.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(" - Exception: {0}" + ex.Message);
+                throw;
             }
         }
 
@@ -700,20 +819,47 @@ namespace BluetoothLEExplorer.Models
             // Decode the value into the right display type
             if (DisplayType == DisplayTypes.Hex || DisplayType == DisplayTypes.Unsupported)
             {
-                Value = GattConvert.ToHexString(rawData);
+                try
+                {
+                    Value = GattConvert.ToHexString(rawData);
+                }
+                catch(Exception)
+                {
+                    Value = "Error: Invalid hex value";
+                }
             }
             else if (DisplayType == DisplayTypes.Decimal)
             {
-                //TODO: if data is larger then int32 this will overflow. Need to fix.
-                Value = GattConvert.ToInt32(rawData).ToString();
+                try
+                {
+                    Value = GattConvert.ToInt64(rawData).ToString();
+                }
+                catch(Exception)
+                {
+                    Value = "Error: Invalid Int64 Value";
+                }
             }
             else if (DisplayType == DisplayTypes.UTF8)
             {
-                Value = GattConvert.ToUTF8String(rawData);
+                try
+                {
+                    Value = GattConvert.ToUTF8String(rawData);
+                }
+                catch(Exception)
+                {
+                    Value = "Error: Invalid UTF8 String";
+                }
             }
             else if (DisplayType == DisplayTypes.UTF16)
             {
-                Value = GattConvert.ToUTF16String(rawData);
+                try
+                {
+                    Value = GattConvert.ToUTF16String(rawData);
+                }
+                catch(Exception)
+                {
+                    Value = "Error: Invalid UTF16 String";
+                }
             }
         }
 

@@ -39,11 +39,11 @@ namespace GattServicesLibrary.Characteristics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        protected override void Characteristic_ReadRequested(GattLocalCharacteristic sender, GattReadRequestedEventArgs args)
+        protected override bool ReadRequested(GattSession session, GattReadRequest request)
         {
             System.Diagnostics.Debug.WriteLine("Entering MSFTReadRequest.Characteristic_ReadRequested");
             UpdateValue();
-            base.Characteristic_ReadRequested(sender, args);
+            return false;
         }
 
         /// <summary>

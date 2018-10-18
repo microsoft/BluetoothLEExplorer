@@ -81,7 +81,9 @@ namespace BluetoothLEExplorer.ViewModels
         public VirtualPeripheralPageViewModel()
         {
             Context.PropertyChanged += Context_PropertyChanged;
-            AvailableServices.Add("Battery");
+            AvailableServices.Add("Alert Notification Service");
+            AvailableServices.Add("Current Time Service");
+            AvailableServices.Add("Battery Service");
             AvailableServices.Add("Microsoft Service");
             AvailableServices.Add("Heart Rate Service");
             AvailableServices.Add("Blood Pressure Service");
@@ -126,7 +128,15 @@ namespace BluetoothLEExplorer.ViewModels
 
             switch(NewSelectedService)
             {
-                case "Battery":
+                case "Alert Notification Service":
+                    service = new GattServicesLibrary.Services.AlertNotificationService();
+                    break;
+
+                case "Current Time Service":
+                    service = new GattServicesLibrary.Services.CurrentTimeService();
+                    break;
+
+                case "Battery Service":
                     service = new GattServicesLibrary.Services.BatteryService();
                     break;
 
@@ -167,6 +177,16 @@ namespace BluetoothLEExplorer.ViewModels
 
             switch(Context.SelectedGattServerService.Service.Name)
             {
+                case "Alert Notification Service":
+                    Views.Busy.SetBusy(false);
+                    NavigationService.Navigate(typeof(Views.AlertNotificationServicePage));
+                    break;
+
+                case "Current Time Service":
+                    Views.Busy.SetBusy(false);
+                    NavigationService.Navigate(typeof(Views.CurrentTimeServicePage));
+                    break;
+
                 case "Battery Service":
                     Views.Busy.SetBusy(false);
                     NavigationService.Navigate(typeof(Views.BatteryServicePage));
