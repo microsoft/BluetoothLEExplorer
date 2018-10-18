@@ -540,13 +540,13 @@ namespace BluetoothLEExplorer.Models
                         CancellationTokenSource GetGattServicesAsyncTokenSource = new CancellationTokenSource(5000);
                         
                         BluetoothCacheMode cacheMode;
-                        if (IsConnectable == true)
+                        if (BluetoothLEExplorer.Services.SettingsServices.SettingsService.Instance.UseCaching)
                         {
-                            cacheMode = BluetoothCacheMode.Uncached;
+                            cacheMode = BluetoothCacheMode.Cached;
                         }
                         else
                         {
-                            cacheMode = BluetoothCacheMode.Cached;
+                            cacheMode = BluetoothCacheMode.Uncached;
                         }
 
                         var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(cacheMode), GetGattServicesAsyncTokenSource.Token);
