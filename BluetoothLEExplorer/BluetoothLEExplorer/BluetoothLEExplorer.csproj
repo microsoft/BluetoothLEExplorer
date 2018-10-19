@@ -107,10 +107,13 @@
       <DependentUpon>GattLocalCharacteristicControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\GattSampleContext.cs" />
+    <Compile Include="Models\HidHelper.cs" />
     <Compile Include="Models\ObservableBluetoothLEDevice.cs" />
     <Compile Include="Models\ObservableGattCharacteristics.cs" />
     <Compile Include="Models\ObservableGattDescriptors.cs" />
     <Compile Include="Models\ObservableGattDeviceService.cs" />
+    <Compile Include="Models\ObservableHidClient.cs" />
+    <Compile Include="Models\VirtualKeyboard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Converters\Converters.cs" />
     <Compile Include="Services\DispatcherService\DispatcherService.cs" />
@@ -133,6 +136,7 @@
     <Compile Include="ViewModels\Services\MicrosoftServicePageViewModel.cs" />
     <Compile Include="ViewModels\GenericGattServiceViewModel.cs" />
     <Compile Include="ViewModels\GenericGattCharacteristicViewModel.cs" />
+    <Compile Include="ViewModels\VirtualKeyboardPageViewModel.cs" />
     <Compile Include="ViewModels\VirtualPeripheralPageViewModel.cs" />
     <Compile Include="Views\Services\AlertNotificationServicePage.xaml.cs">
       <DependentUpon>AlertNotificationServicePage.xaml</DependentUpon>
@@ -175,6 +179,9 @@
     </Compile>
     <Compile Include="Views\Splash.xaml.cs">
       <DependentUpon>Splash.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VirtualKeyboardPage.xaml.cs">
+      <DependentUpon>VirtualKeyboardPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VirtualPeripheralPage.xaml.cs">
       <DependentUpon>VirtualPeripheralPage.xaml</DependentUpon>
@@ -281,6 +288,10 @@
     <Page Include="Views\Splash.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VirtualKeyboardPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\VirtualPeripheralPage.xaml">
       <Generator>MSBuild:Compile</Generator>

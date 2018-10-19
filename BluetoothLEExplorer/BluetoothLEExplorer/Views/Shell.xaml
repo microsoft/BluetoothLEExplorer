@@ -46,6 +46,14 @@
                                Text="Virtual Peripheral" TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:VirtualKeyboardPage" >
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48"
+                                Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                               Text="Virtual Keyboard" TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
             <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:Beacon" Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48" Height="48"
