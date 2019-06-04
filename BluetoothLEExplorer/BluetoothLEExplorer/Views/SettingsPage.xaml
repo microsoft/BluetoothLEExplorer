@@ -82,7 +82,7 @@
                         
                         <ToggleSwitch x:Name="UseCachingToggleSwitch" Header="Use Caching"
                                       IsOn="{Binding UseCachingButton, Mode=TwoWay}"
-                                      OffContent="Will always make over the air requests." OnContent="Will use cached values where possible."
+                                      OffContent="Will make over the air requests if necessary based on GattRobustCaching if supported." OnContent="Will use locally cached values where possible."
                                       RelativePanel.AlignLeftWithPanel="True"
                                       RelativePanel.Below="UseLightThemeToggleSwitch" />
                     </RelativePanel>

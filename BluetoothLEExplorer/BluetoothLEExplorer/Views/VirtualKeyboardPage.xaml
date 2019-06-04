@@ -129,7 +129,7 @@
                            Text="List of subscribed clients:" />
 
                 <GridView Grid.Row="1" x:Name="DevicesListView" 
-                ItemsSource="{x:Bind ViewModel.SubscribedHidClients, Mode=OneWay}">
+                ItemsSource="{x:Bind ViewModel.SubscribedGattClients, Mode=OneWay}">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Vertical">
@@ -145,7 +145,7 @@
                     </GridView.ItemsPanel>
 
                     <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ObservableHidClient" >
+                        <DataTemplate x:DataType="models:ObservableGattClient" >
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
                                 <TextBlock Text=": " Width="20" />

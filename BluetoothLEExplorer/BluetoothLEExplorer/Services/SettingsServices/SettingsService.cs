@@ -61,7 +61,7 @@ namespace BluetoothLEExplorer.Services.SettingsServices
         {
             get
             {
-                return helper.Read<bool>(nameof(UseCaching), false);
+                return helper.Read<bool>(nameof(UseCaching), true);
             }
 
             set

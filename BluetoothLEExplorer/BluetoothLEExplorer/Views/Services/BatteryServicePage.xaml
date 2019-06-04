@@ -102,7 +102,11 @@
 
         <StackPanel RelativePanel.Below="pageHeader" Padding="10">
             <StackPanel Orientation="Horizontal">
-                <ToggleSwitch x:Name="Switch" RelativePanel.Below="pageHeader" Header="Discoverable and Connectable"
+                <ToggleSwitch x:Name="ConnectableSwitch" RelativePanel.Below="pageHeader" Header="Advertise as connectable."
+                              IsOn="{x:Bind ViewModel.ServiceVM.IsConnectable, Mode=TwoWay}" Margin="5" />
+                <ToggleSwitch x:Name="DiscoverableSwitch" RelativePanel.Below="ConnectableSwitch" Header="Include service in advertisement."
+                              IsOn="{x:Bind ViewModel.ServiceVM.IsDiscoverable, Mode=TwoWay}" Margin="5" />
+                <ToggleSwitch x:Name="PublishingSwitch" RelativePanel.Below="DiscoverableSwitch" Header="Publish advertisement."
                               IsOn="{x:Bind ViewModel.ServiceVM.IsPublishing, Mode=TwoWay}" Margin="5" />
                 
                 <!--<ProgressRing Visibility="{x:Bind ViewModel.IsPublishingProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" 

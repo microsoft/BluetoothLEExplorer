@@ -151,11 +151,6 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Gets or sets if we are using cached results
-        /// </summary>
-        public BluetoothCacheMode CacheMode { get; private set; }
-
-        /// <summary>
         /// Determines if the SelectedCharacteristic_PropertyChanged has been added
         /// </summary>
         private bool hasSelectedCharacteristicPropertyChangedHandler = false;
@@ -164,9 +159,8 @@ namespace BluetoothLEExplorer.Models
         /// Initializes a new instance of the <see cref="ObservableGattDeviceService" /> class.
         /// </summary>
         /// <param name="service">The service this class wraps</param>
-        public ObservableGattDeviceService(GattDeviceService service, BluetoothCacheMode cacheMode)
+        public ObservableGattDeviceService(GattDeviceService service)
         {
-            CacheMode = cacheMode;
             Service = service;
             Name = GattServiceUuidHelper.ConvertUuidToName(service.Uuid);
             UUID = Service.Uuid.ToString();
@@ -227,7 +221,7 @@ namespace BluetoothLEExplorer.Models
                     return;
                 }
 
-                GattCharacteristicsResult result = await Service.GetCharacteristicsAsync(CacheMode);
+                GattCharacteristicsResult result = await Service.GetCharacteristicsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {

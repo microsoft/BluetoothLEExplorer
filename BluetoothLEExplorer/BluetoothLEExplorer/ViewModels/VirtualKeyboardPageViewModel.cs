@@ -26,9 +26,9 @@ namespace BluetoothLEExplorer.ViewModels
         private bool m_isKeyboardEnabled = false;
 
         private object m_subscribedHidClientsLock = new object();
-        private ObservableCollection<ObservableHidClient> m_subscribedHidClients = new ObservableCollection<ObservableHidClient>();
+        private ObservableCollection<ObservableGattClient> m_subscribedHidClients = new ObservableCollection<ObservableGattClient>();
 
-        public ObservableCollection<ObservableHidClient> SubscribedHidClients
+        public ObservableCollection<ObservableGattClient> SubscribedGattClients
         {
             get
             {
@@ -169,12 +169,12 @@ namespace BluetoothLEExplorer.ViewModels
 
         private async void VirtualKeyboard_SubscribedHidClientsChanged(IReadOnlyList<Windows.Devices.Bluetooth.GenericAttributeProfile.GattSubscribedClient> subscribedClients)
         {
-            ObservableCollection<ObservableHidClient> currentHidClients = new ObservableCollection<ObservableHidClient>();
+            ObservableCollection<ObservableGattClient> currentHidClients = new ObservableCollection<ObservableGattClient>();
             if (subscribedClients != null)
             {
                 foreach (var client in subscribedClients)
                 {
-                    currentHidClients.Add(await ObservableHidClient.FromIdAsync(client.Session.DeviceId.Id));
+                    currentHidClients.Add(await ObservableGattClient.FromIdAsync(client.Session.DeviceId.Id));
                 }
             }
 
@@ -182,7 +182,7 @@ namespace BluetoothLEExplorer.ViewModels
             {
                 m_subscribedHidClients = currentHidClients;
             }
-            RaisePropertyChanged("SubscribedHidClients");
+            RaisePropertyChanged("SubscribedGattClients");
         }
 
         /// <summary>

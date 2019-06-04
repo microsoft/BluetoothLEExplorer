@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace BluetoothLEExplorer.Models
 {
-    public class ObservableHidClient : INotifyPropertyChanged, IEquatable<ObservableHidClient>
+    public class ObservableGattClient : INotifyPropertyChanged, IEquatable<ObservableGattClient>
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -37,26 +37,26 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
-        public static async Task<ObservableHidClient> FromIdAsync(string deviceId)
+        public static async Task<ObservableGattClient> FromIdAsync(string deviceId)
         {
             var leDevice = await BluetoothLEDevice.FromIdAsync(deviceId);
-            return new ObservableHidClient(leDevice);
+            return new ObservableGattClient(leDevice);
         }
 
-        public ObservableHidClient(BluetoothLEDevice device)
+        public ObservableGattClient(BluetoothLEDevice device)
         {
             m_leDevice = device;
             m_leDevice.ConnectionStatusChanged += ConnectionStatusChanged;
             IsConnected = (m_leDevice.ConnectionStatus == BluetoothConnectionStatus.Connected);
         }
 
-        ~ObservableHidClient()
+        ~ObservableGattClient()
         {
             m_leDevice.ConnectionStatusChanged -= ConnectionStatusChanged;
             m_leDevice.Dispose();
         }
 
-        bool IEquatable<ObservableHidClient>.Equals(ObservableHidClient other)
+        bool IEquatable<ObservableGattClient>.Equals(ObservableGattClient other)
         {
             if (other == null)
             {
