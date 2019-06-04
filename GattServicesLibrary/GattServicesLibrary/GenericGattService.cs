@@ -112,10 +112,47 @@ namespace GattServicesLibrary
             }
         }
 
+
+        public bool IsConnectable
+        {
+            get
+            {
+                return ad.IsConnectable;
+            }
+
+            set
+            {
+                if (value != ad.IsConnectable)
+                {
+                    ad.IsConnectable = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("IsConnectable"));
+                }
+            }
+        }
+
+        public bool IsDiscoverable
+        {
+            get
+            {
+                return ad.IsDiscoverable;
+            }
+
+            set
+            {
+                if (value != ad.IsDiscoverable)
+                {
+                    ad.IsDiscoverable = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("IsDiscoverable"));
+                }
+            }
+        }
+
         /// <summary>
         /// Internal ServiceProvider
         /// </summary>
         private GattServiceProvider serviceProvider;
+
+        private GattServiceProviderAdvertisingParameters ad = new GattServiceProviderAdvertisingParameters();
         
         /// <summary>
         /// Gets or sets the Gatt Service Provider
@@ -133,7 +170,16 @@ namespace GattServicesLibrary
                 {
                     serviceProvider = value;
                     OnPropertyChanged(new PropertyChangedEventArgs("ServiceProvider"));
+                    serviceProvider.AdvertisementStatusChanged += ServiceProvider_AdvertisementStatusChanged;
                 }
+            }
+        }
+
+        private void ServiceProvider_AdvertisementStatusChanged(GattServiceProvider sender, GattServiceProviderAdvertisementStatusChangedEventArgs args)
+        {
+            if (args.Status != GattServiceProviderAdvertisementStatus.Started)
+            {
+                IsPublishing = false;
             }
         }
 
@@ -160,20 +206,11 @@ namespace GattServicesLibrary
         /// <summary>
         /// Starts the Gatt Service
         /// </summary>
-        /// <param name="connectable">True, Starts the Service as connectable. False, starts the Service as only Discoverable</param>
-        public virtual void Start(bool connectable)
+        public virtual void Start()
         {
-            // MakeDiscoverable ensures that remote devices can query support for the service from the local device. MakeConnectable is PeripheralRole and advertises connectably 
-            // and best-effort populates the ADV packet with the service ID
-            GattServiceProviderAdvertisingParameters advParameters = new GattServiceProviderAdvertisingParameters
-            {
-                IsDiscoverable = true,
-                IsConnectable = connectable
-            };
-
             try
             {
-                ServiceProvider.StartAdvertising(advParameters);
+                ServiceProvider.StartAdvertising(ad);
                 IsPublishing = true;
                 OnPropertyChanged(new PropertyChangedEventArgs("IsPublishing"));
             }

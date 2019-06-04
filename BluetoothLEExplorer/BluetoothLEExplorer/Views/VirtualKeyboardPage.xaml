@@ -1,0 +1,163 @@
+﻿<Page x:Class="BluetoothLEExplorer.Views.VirtualKeyboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ggs="using:GattServicesLibrary"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d"
+      xmlns:models="using:BluetoothLEExplorer.Models">
+
+    <Page.DataContext>
+        <vm:VirtualKeyboardPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+    <Page.Resources>
+        <converters:ValueWhenConverter x:Key="VisibleWhenTrueConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="VisibleWhenFalseConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>False</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+        
+        <converters:ValueWhenConverter x:Key="ConnectedWhenTrueConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <x:String>Connected</x:String>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <x:String>Disconnected</x:String>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+    </Page.Resources>
+    
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" /> 
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" /> 
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Virtual Keyboard">
+
+            <!--  secondary commands  -->
+            <controls:PageHeader.SecondaryCommands>
+                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+            </controls:PageHeader.SecondaryCommands>
+
+        </controls:PageHeader>
+
+        <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource VisibleWhenFalseConverter}}">
+            <TextBlock Text="Peripheral mode is not supported on this device" />
+        </RelativePanel>
+
+        <RelativePanel RelativePanel.Below="pageHeader" Padding="10" Visibility="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{x:Bind ViewModel.ErrorText, Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal">
+                    <ProgressRing VerticalAlignment="Top" IsActive="True" Visibility="{x:Bind ViewModel.IsSettingUp, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" HorizontalAlignment="Left" />
+                    <TextBlock Text=" " Width="20" />
+                    <ToggleSwitch x:Name="VirtualKeyboardSwitch"
+                                  Header="Discoverable and Connectable"
+                                  IsOn="{x:Bind ViewModel.IsKeyboardEnabled, Mode=TwoWay}"
+                                  IsEnabled="{x:Bind ViewModel.IsSettingUp.Equals(x:False), Mode=OneWay}"
+                                  IsFocusEngagementEnabled="False"
+                                  AllowFocusOnInteraction="False"
+                                  AllowFocusWhenDisabled="False"
+                                  IsTabStop="False" />
+                </StackPanel>
+
+                <TextBlock Visibility="{Binding IsOn, ElementName=VirtualKeyboardSwitch, Converter={StaticResource VisibleWhenTrueConverter}}" TextWrapping="WrapWholeWords">
+                    While this application is in focus, keystrokes from your physical keyboard will be routed to any and all paired 
+                    clients that are connected and subscribed to the HID notifications. You can see those below. Note: certain Android 
+                    devices may require a Bluetooth radio toggle for HID to work again after toggling the above toggle.
+                </TextBlock>
+
+                <TextBlock Visibility="{Binding IsOn, ElementName=VirtualKeyboardSwitch, Converter={StaticResource VisibleWhenTrueConverter}}"
+                            Margin="0,20,0,0"
+                           Text="List of subscribed clients:" />
+
+                <GridView Grid.Row="1" x:Name="DevicesListView" 
+                ItemsSource="{x:Bind ViewModel.SubscribedGattClients, Mode=OneWay}">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Vertical">
+                                <ItemsWrapGrid.ChildrenTransitions>
+                                    <TransitionCollection>
+                                        <AddDeleteThemeTransition/>
+                                        <RepositionThemeTransition/>
+                                        <ReorderThemeTransition/>
+                                    </TransitionCollection>
+                                </ItemsWrapGrid.ChildrenTransitions>
+                            </ItemsWrapGrid>
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ObservableGattClient" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                <TextBlock Text=": " Width="20" />
+                                <TextBlock Text="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource ConnectedWhenTrueConverter}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+            </StackPanel>
+        </RelativePanel>
+
+    </RelativePanel>
+</Page>
+

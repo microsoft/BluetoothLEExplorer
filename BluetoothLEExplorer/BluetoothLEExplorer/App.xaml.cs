@@ -93,7 +93,7 @@ namespace BluetoothLEExplorer
                         {
                             if (serviceUUID == service.Service.ServiceProvider.Service.Uuid.ToString())
                             {
-                                service.Service.Start(true);
+                                service.Start();
                             }
                         }
                     }

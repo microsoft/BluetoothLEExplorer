@@ -37,6 +37,48 @@ namespace BluetoothLEExplorer.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the Advertisement status is disconverable.
+        /// </summary>
+        public bool IsConnectable
+        {
+            get
+            {
+                return service.IsConnectable;
+            }
+
+            set
+            {
+                if (value != service.IsConnectable)
+                {
+                    service.IsConnectable = value;
+                    RaisePropertyChanged("IsConnectable");
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Advertisement status is disconverable.
+        /// </summary>
+        public bool IsDiscoverable
+        {
+            get
+            {
+                return service.IsDiscoverable;
+            }
+
+            set
+            {
+                if (value != service.IsDiscoverable)
+                {
+                    service.IsDiscoverable = value;
+                    RaisePropertyChanged("IsDiscoverable");
+                }
+
+            }
+        }
+
+        /// <summary>
         /// Source for <see cref="IsPublishing"/> property
         /// </summary>
         private bool isPublishing = false;
@@ -75,20 +117,20 @@ namespace BluetoothLEExplorer.ViewModels
         /// <summary>
         /// Starts the service
         /// </summary>
-        private async void Start()
+        public async void Start()
         {
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                 Windows.UI.Core.CoreDispatcherPriority.Normal, 
                 () =>
             {
-                Service.Start(true);
+                Service.Start();
             });
         }
 
         /// <summary>
         /// Stops the service
         /// </summary>
-        private async void Stop()
+        public async void Stop()
         {
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                 Windows.UI.Core.CoreDispatcherPriority.Normal,

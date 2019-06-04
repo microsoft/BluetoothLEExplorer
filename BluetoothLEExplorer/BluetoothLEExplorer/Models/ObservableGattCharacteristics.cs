@@ -371,7 +371,8 @@ namespace BluetoothLEExplorer.Models
         {
             try
             {
-                GattReadResult result = await Characteristic.ReadValueAsync(Parent.CacheMode);
+                GattReadResult result = await Characteristic.ReadValueAsync(
+                    BluetoothLEExplorer.Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
@@ -423,7 +424,8 @@ namespace BluetoothLEExplorer.Models
 
             try
             {
-                GattDescriptorsResult result = await Characteristic.GetDescriptorsAsync(Parent.CacheMode);
+                GattDescriptorsResult result = await Characteristic.GetDescriptorsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     sb.Append(" - found ");

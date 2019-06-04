@@ -297,8 +297,8 @@ namespace BluetoothLEExplorer.Services.GattUuidHelpers
         ObjectListControlPoint = 0x2AC6,
         ObjectListFilter = 0x2AC7,
         ObjectChanged = 0x2AC8,
-        DatabaseHash = 0x7F00,
-        ClientSupportedFeatures = 0x7F01,
+        DatabaseHash = 0x2B2A,
+        ClientSupportedFeatures = 0x2B29,
         SimpleKeyState = 0xFFE1,
     }
 

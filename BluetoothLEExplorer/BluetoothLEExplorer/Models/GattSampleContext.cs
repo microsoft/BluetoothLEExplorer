@@ -540,7 +540,14 @@ namespace BluetoothLEExplorer.Models
                             Windows.UI.Core.CoreDispatcherPriority.Normal,
                             () =>
                             {
-                                d.ServiceCount = args.Advertisement.ServiceUuids.Count();
+                                if (args.Advertisement.ServiceUuids != null)
+                                {
+                                    d.ServiceCount = args.Advertisement.ServiceUuids.Count();
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("Observed ADVs without ServicesUuids at UPF61");
+                                }
                             });
                     }
                 }

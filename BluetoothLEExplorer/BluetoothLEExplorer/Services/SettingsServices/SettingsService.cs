@@ -55,6 +55,22 @@ namespace BluetoothLEExplorer.Services.SettingsServices
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use caching.
+        /// </summary>
+        public bool UseCaching
+        {
+            get
+            {
+                return helper.Read<bool>(nameof(UseCaching), true);
+            }
+
+            set
+            {
+                helper.Write(nameof(UseCaching), value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the application theme
         /// </summary>
         public ApplicationTheme AppTheme

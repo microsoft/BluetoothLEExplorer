@@ -198,7 +198,9 @@ namespace BluetoothLEExplorer.Models
         {
             try
             {
-                GattReadResult result = await Descriptor.ReadValueAsync(Parent.Parent.CacheMode);
+                GattReadResult result = await Descriptor.ReadValueAsync(
+                    Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     SetValue(result.Value);
