@@ -74,7 +74,7 @@ namespace BluetoothLEExplorer.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether caching should be used
         /// </summary>
-        public bool UseCaching
+        public bool UseCachingButton
         {
             get
             {
