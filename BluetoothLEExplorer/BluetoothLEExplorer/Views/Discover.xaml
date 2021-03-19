@@ -234,7 +234,7 @@
                                 </TextBlock>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
-                                <Button Name="Pair" Click="{x:Bind DoInAppPairing}" HorizontalAlignment="Center" IsEnabled="{x:Bind CanPair(IsPaired, IsConnectable), Mode=OneWay}">
+                                <Button Name="Pair" Click="{x:Bind DoInAppPairing}" HorizontalAlignment="Center" IsEnabled="{x:Bind CanPair(IsPaired), Mode=OneWay}">
                                     Pair
                                 </Button>
                             </StackPanel>

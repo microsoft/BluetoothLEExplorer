@@ -172,7 +172,8 @@ namespace BluetoothLEExplorer.Models
         /// </summary>
         ~ObservableGattDeviceService()
         {
-            Characteristics.Clear();
+            // ToDo: Figure out why this causes app to crash when refresh button is mashed
+            // Characteristics.Clear();
         }
 
         /// <summary>
