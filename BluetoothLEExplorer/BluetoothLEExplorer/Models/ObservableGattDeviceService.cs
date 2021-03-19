@@ -210,7 +210,16 @@ namespace BluetoothLEExplorer.Models
             {
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
-                GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+                GattOpenStatus status;
+                if (GattServiceUuidHelper.IsReadOnly(service.Uuid))
+                {
+                    status = await Service.OpenAsync(GattSharingMode.SharedReadOnly);
+                }
+                else
+                {
+                    status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+                }
+
                 if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
                 {
                     string error = " - Error: " + status.ToString();

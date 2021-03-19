@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.Foundation.Metadata;
 using System.Collections;
 using System.Collections.Generic;
+using BluetoothLEExplorer.Services.GattUuidHelpers;
 
 namespace BluetoothLEExplorer.Models
 {
@@ -218,6 +219,8 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        public bool CanPair(bool isPaired, bool isConnectable) { return !isPaired && isConnectable; }
+
         private bool isSecureConnection;
 
         public bool IsSecureConnection
@@ -365,31 +368,6 @@ namespace BluetoothLEExplorer.Models
                 {
                     rssi = newValue;
                     OnPropertyChanged(new PropertyChangedEventArgs("RSSI"));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Source for <see cref="BatteryLevel"/>
-        /// </summary>
-        private int batteryLevel = -1;
-
-        /// <summary>
-        /// Gets or sets the Battery level of this device. -1 if unknown.
-        /// </summary>
-        public int BatteryLevel
-        {
-            get
-            {
-                return batteryLevel;
-            }
-
-            set
-            {
-                if (batteryLevel != value)
-                {
-                    batteryLevel = value;
-                    OnPropertyChanged(new PropertyChangedEventArgs("BatteryLevel"));
                 }
             }
         }
@@ -553,7 +531,10 @@ namespace BluetoothLEExplorer.Models
                             System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
                             foreach (var serv in result.Services)
                             {
-                                Services.Add(new ObservableGattDeviceService(serv));
+                                if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
+                                {
+                                    Services.Add(new ObservableGattDeviceService(serv));
+                                }
                             }
 
                             ServiceCount = Services.Count();

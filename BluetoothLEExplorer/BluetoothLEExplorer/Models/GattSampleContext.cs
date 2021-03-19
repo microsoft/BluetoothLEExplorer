@@ -42,16 +42,6 @@ namespace BluetoothLEExplorer.Models
         private const string DevNodeBTLEDeviceWatcherAQSString = "(System.Devices.ClassGuid:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")";
 
         /// <summary>
-        /// Device dev node property to get battery level
-        /// </summary>
-        private const string BatteryLevelGUID = "{995EF0B0-7EB3-4A8B-B9CE-068BB3F4AF69} 10";
-
-        /// <summary>
-        /// Device dev node property to get device address
-        /// </summary>
-        private const string BluetoothDeviceAddress = "System.DeviceInterface.Bluetooth.DeviceAddress";
-
-        /// <summary>
         /// Gets or sets the list of available bluetooth devices
         /// </summary>
         public ObservableCollection<ObservableBluetoothLEDevice> BluetoothLEDevices { get; set; } = new ObservableCollection<ObservableBluetoothLEDevice>();
@@ -268,11 +258,7 @@ namespace BluetoothLEExplorer.Models
             }
 
             // Start the dev node watcher
-            string[] requestedProperties =
-                {
-                    BatteryLevelGUID,
-                    BluetoothDeviceAddress
-                };
+            string[] requestedProperties = {};
 
             devNodeWatcher =
                 DeviceInformation.CreateWatcher(
@@ -302,8 +288,6 @@ namespace BluetoothLEExplorer.Models
             {
                 DevNodeLock.Release();
             }
-
-            await UpdateBatteryLevel(args);
         }
 
         private async void DevNodeWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -338,75 +322,6 @@ namespace BluetoothLEExplorer.Models
             if(dev != null)
             {
                 dev.Update(args);
-                await UpdateBatteryLevel(dev);
-            }
-        }
-
-        /// <summary>
-        /// Update the battery level of a ObservableBluetoothLEDevice based on DeviceInfo object
-        /// </summary>
-        /// <param name="dev">DeviceInformation object</param>
-        /// <returns></returns>
-        private async Task UpdateBatteryLevel(DeviceInformation dev)
-        {
-            if (dev.Properties.Keys.Contains(BatteryLevelGUID) &&
-                dev.Properties[BatteryLevelGUID] != null &&
-                dev.Properties.Keys.Contains(BluetoothDeviceAddress) &&
-                dev.Properties[BluetoothDeviceAddress] != null)
-            {
-                try
-                {
-                    await BluetoothLEDevicesLock.WaitAsync();
-
-                    foreach (ObservableBluetoothLEDevice device in BluetoothLEDevices)
-                    {
-                        string addr = GetDelimitedAddr((string)dev.Properties[BluetoothDeviceAddress]);
-                        if (device.BluetoothAddressAsString == addr)
-                        {
-                            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                                Windows.UI.Core.CoreDispatcherPriority.Normal,
-                                () =>
-                                {
-                                    device.BatteryLevel = Convert.ToInt32((byte)dev.Properties[BatteryLevelGUID]);
-                                });
-                            break;
-                        }
-                    }
-                }
-                finally
-                {
-                    BluetoothLEDevicesLock.Release();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the battery level of a ObservableBluetoothLEDevice by searching through known dev nodes
-        /// </summary>
-        /// <param name="dev">device to update</param>
-        /// <returns></returns>
-        private async Task UpdateBatteryLevel(ObservableBluetoothLEDevice dev)
-        {
-            foreach(DeviceInformation devNode in devNodes)
-            {
-                string addr = dev.BluetoothAddressAsString.Replace(":", String.Empty);
-
-                if (devNode.Properties.Keys.Contains(BatteryLevelGUID) &&
-                    devNode.Properties[BatteryLevelGUID] != null &&
-                    devNode.Properties.Keys.Contains(BluetoothDeviceAddress) &&
-                    devNode.Properties[BluetoothDeviceAddress] != null)
-                {
-                    if ((string)devNode.Properties[BluetoothDeviceAddress] == addr)
-                    {
-                        await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                            Windows.UI.Core.CoreDispatcherPriority.Normal,
-                            () =>
-                            {
-                                dev.BatteryLevel = Convert.ToInt32((byte)devNode.Properties[BatteryLevelGUID]);
-                            });
-                        break;
-                    }
-                }
             }
         }
 
@@ -612,7 +527,6 @@ namespace BluetoothLEExplorer.Models
                                 async () =>
                                 {
                                     dev.Update(deviceInfoUpdate);
-                                    await UpdateBatteryLevel(dev);
                                 });
                         }
                         else
@@ -749,8 +663,6 @@ namespace BluetoothLEExplorer.Models
                 try
                 {
                     await BluetoothLEDevicesLock.WaitAsync();
-
-                    await UpdateBatteryLevel(dev);
 
                     if (!BluetoothLEDevices.Contains(dev))
                     {

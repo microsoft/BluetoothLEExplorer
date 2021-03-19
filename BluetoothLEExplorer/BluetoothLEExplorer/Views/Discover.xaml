@@ -208,9 +208,6 @@
                                     <TextBlock Margin="5,0,0,0">
                                     RSSI: <Run Text="{x:Bind RSSI, Mode=OneWay}" />
                                     </TextBlock>
-                                    <TextBlock Margin="5,0,0,0" Visibility="{x:Bind BatteryLevel, Mode=OneWay, Converter={StaticResource CollapsedWhenNegOne}}">
-                                    Battery: <Run Text="{x:Bind BatteryLevel, Mode=OneWay}" />
-                                    </TextBlock>
                                 </StackPanel>
                             </Grid>
                             <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
@@ -237,7 +234,7 @@
                                 </TextBlock>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
-                                <Button Name="Pair" Click="{x:Bind DoInAppPairing}" HorizontalAlignment="Center">
+                                <Button Name="Pair" Click="{x:Bind DoInAppPairing}" HorizontalAlignment="Center" IsEnabled="{x:Bind CanPair(IsPaired, IsConnectable), Mode=OneWay}">
                                     Pair
                                 </Button>
                             </StackPanel>
