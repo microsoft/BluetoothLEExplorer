@@ -219,7 +219,7 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
-        public bool CanPair(bool isPaired) { return !isPaired; }
+        public bool CanPair(bool isPaired, bool IsConnectable) { return !isPaired && IsConnectable; }
 
         private bool isSecureConnection;
 

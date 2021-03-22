@@ -168,15 +168,6 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Destruct by clearing characteristic list
-        /// </summary>
-        ~ObservableGattDeviceService()
-        {
-            // ToDo: Figure out why this causes app to crash when refresh button is mashed
-            // Characteristics.Clear();
-        }
-
-        /// <summary>
         /// Adds the SelectedCharacteristic_PropertyChanged event handler
         /// </summary>
         private void SelectedCharacteristic_PropertyChanged()
@@ -211,15 +202,7 @@ namespace BluetoothLEExplorer.Models
             {
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
-                GattOpenStatus status;
-                if (GattServiceUuidHelper.IsReadOnly(service.Uuid))
-                {
-                    status = await Service.OpenAsync(GattSharingMode.SharedReadOnly);
-                }
-                else
-                {
-                    status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
-                }
+                GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
 
                 if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
                 {

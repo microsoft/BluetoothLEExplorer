@@ -298,6 +298,7 @@ namespace BluetoothLEExplorer.ViewModels
         {
             get
             {
+                // Windows blocks writing on certain characteristics
                 if (GattServiceUuidHelper.IsReadOnly(Characteristic.Characteristic.Service.Uuid))
                 {
                     return false;
