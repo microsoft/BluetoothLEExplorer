@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------
 using System;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace BluetoothLEExplorer.Services.GattUuidHelpers
 {
@@ -23,6 +24,26 @@ namespace BluetoothLEExplorer.Services.GattUuidHelpers
                 return name.ToString();
             }
             return uuid.ToString();
+        }
+
+        public static bool IsReadOnly(Guid uuid)
+        {
+            if (GattServiceUuids.DeviceInformation == uuid || GattServiceUuids.GenericAttribute == uuid || GattServiceUuids.GenericAccess == uuid || GattServiceUuids.ScanParameters == uuid)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsReserved(Guid uuid)
+        {
+            if (GattServiceUuids.HumanInterfaceDevice == uuid)
+            {
+                return true;
+            }
+            
+            return false;
         }
     }
 

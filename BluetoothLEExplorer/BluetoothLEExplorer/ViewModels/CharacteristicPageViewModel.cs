@@ -16,6 +16,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Popups;
 using GattHelper.Converters;
+using BluetoothLEExplorer.Services.GattUuidHelpers;
 
 namespace BluetoothLEExplorer.ViewModels
 {
@@ -297,6 +298,12 @@ namespace BluetoothLEExplorer.ViewModels
         {
             get
             {
+                // Windows blocks writing on certain characteristics
+                if (GattServiceUuidHelper.IsReadOnly(Characteristic.Characteristic.Service.Uuid))
+                {
+                    return false;
+                }
+
                 return ( Characteristic.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Write) ||
                          Characteristic.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.WriteWithoutResponse));
             }
@@ -683,6 +690,12 @@ namespace BluetoothLEExplorer.ViewModels
                 foreach (GattCharacteristicProperties p in Enum.GetValues(typeof(GattCharacteristicProperties)))
                 {
                     if (p == GattCharacteristicProperties.None)
+                    {
+                        continue;
+                    }
+
+                    if (BluetoothLEExplorer.Services.GattUuidHelpers.GattServiceUuidHelper.IsReadOnly(Characteristic.Characteristic.Service.Uuid) &&
+                        (p == GattCharacteristicProperties.Write || p == GattCharacteristicProperties.WriteWithoutResponse))
                     {
                         continue;
                     }

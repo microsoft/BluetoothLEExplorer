@@ -168,14 +168,6 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Destruct by clearing characteristic list
-        /// </summary>
-        ~ObservableGattDeviceService()
-        {
-            Characteristics.Clear();
-        }
-
-        /// <summary>
         /// Adds the SelectedCharacteristic_PropertyChanged event handler
         /// </summary>
         private void SelectedCharacteristic_PropertyChanged()
@@ -211,6 +203,7 @@ namespace BluetoothLEExplorer.Models
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
                 GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+
                 if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
                 {
                     string error = " - Error: " + status.ToString();
