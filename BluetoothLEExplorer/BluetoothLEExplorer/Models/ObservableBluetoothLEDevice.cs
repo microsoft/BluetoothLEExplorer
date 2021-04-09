@@ -219,7 +219,30 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
-        public bool CanPair(bool isPaired, bool IsConnectable) { return !isPaired && IsConnectable; }
+        /// <summary>
+        /// Source for <see cref="CanPair"/>
+        /// </summary>
+        private bool canPair;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this device is paired
+        /// </summary>
+        public bool CanPair
+        {
+            get
+            {
+                return canPair;
+            }
+
+            set
+            {
+                if (canPair != value)
+                {
+                    canPair = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("CanPair"));
+                }
+            }
+        }
 
         private bool isSecureConnection;
 
@@ -432,6 +455,7 @@ namespace BluetoothLEExplorer.Models
             }
 
             IsPaired = DeviceInfo.Pairing.IsPaired;
+            CanPair = DeviceInfo.Pairing.CanPair;
 
             LoadGlyph();
 
@@ -508,6 +532,7 @@ namespace BluetoothLEExplorer.Models
                         BluetoothLEDevice.NameChanged += BluetoothLEDevice_NameChanged;
 
                         IsPaired = DeviceInfo.Pairing.IsPaired;
+                        CanPair = DeviceInfo.Pairing.CanPair;
                         IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
 
                         UpdateSecureConnectionStatus();
@@ -591,6 +616,9 @@ namespace BluetoothLEExplorer.Models
             // BT_Code: Pair the currently selected device.
             DevicePairingResult result = await DeviceInfo.Pairing.PairAsync();
 
+            CanPair = DeviceInfo.Pairing.CanPair;
+            IsPaired = DeviceInfo.Pairing.IsPaired;
+
             Debug.WriteLine($"Pairing result: {result.Status.ToString()}");
 
             if (result.Status == DevicePairingResultStatus.Paired || 
@@ -633,6 +661,7 @@ namespace BluetoothLEExplorer.Models
                 () =>
             {
                 IsPaired = DeviceInfo.Pairing.IsPaired;
+                CanPair = DeviceInfo.Pairing.CanPair;
                 IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
                 UpdateSecureConnectionStatus();
             });
