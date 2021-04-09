@@ -196,7 +196,7 @@ namespace BluetoothLEExplorer.Models
                     OnPropertyChanged(new PropertyChangedEventArgs("SelectedDescriptor"));
 
                     // The SelectedProperty doesn't exist when this object is first created. This takes
-                    // care of adding the correct event handler after the first time it's changed. 
+                    // care of adding the correct event handler after the first time it's changed.
                     SelectedDescriptor_PropertyChanged();
                 }
             }
@@ -320,11 +320,15 @@ namespace BluetoothLEExplorer.Models
         {
             Characteristic = characteristic;
             Parent = parent;
+
             Name = GattCharacteristicUuidHelper.ConvertUuidToName(Characteristic.Uuid);
             UUID = Characteristic.Uuid.ToString();
+        }
 
-            ReadValueAsync();
-            GetAllDescriptors();
+        public async Task Initialize()
+        {
+            await ReadValueAsync();
+            await GetAllDescriptors();
 
             characteristic.ValueChanged += Characteristic_ValueChanged;
             PropertyChanged += ObservableGattCharacteristics_PropertyChanged;
@@ -343,7 +347,7 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Cleanup this object by unsetting notification/indication 
+        /// Cleanup this object by unsetting notification/indication
         /// </summary>
         private async void Cleanup()
         {
@@ -367,7 +371,7 @@ namespace BluetoothLEExplorer.Models
         /// <summary>
         /// Reads the value of the Characteristic
         /// </summary>
-        public async void ReadValueAsync()
+        public async Task ReadValueAsync()
         {
             try
             {
@@ -416,7 +420,7 @@ namespace BluetoothLEExplorer.Models
             GattSampleContext.Context.SelectedDescriptor = SelectedDescriptor;
         }
 
-        private async void GetAllDescriptors()
+        private async Task GetAllDescriptors()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("ObservableGattCharacteristics::getAllDescriptors: ");
@@ -434,7 +438,9 @@ namespace BluetoothLEExplorer.Models
                     Debug.WriteLine(sb);
                     foreach (GattDescriptor descriptor in result.Descriptors)
                     {
-                        Descriptors.Add(new ObservableGattDescriptors(descriptor, this));
+                        ObservableGattDescriptors temp = new ObservableGattDescriptors(descriptor, this);
+                        await temp.Initialize();
+                        Descriptors.Add(temp);
                     }
                 }
                 else if (result.Status == GattCommunicationStatus.Unreachable)
@@ -451,7 +457,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine(" - Exception: {0}" + ex.Message);
-                throw;
+                Value = "Exception";
             }
         }
 
@@ -521,11 +527,11 @@ namespace BluetoothLEExplorer.Models
             if (IsIndicateSet == false)
             {
                 // indicate is not set, can skip this
-                return true; 
+                return true;
             }
 
             try
-            { 
+            {
                 // BT_Code: Must write the CCCD in order for server to send indications.
                 // We receive them in the ValueChanged event handler.
                 // Note that this sample configures either Indicate or Notify, but not both.
@@ -692,7 +698,7 @@ namespace BluetoothLEExplorer.Models
         {
             rawData = buffer;
             CryptographicBuffer.CopyToByteArray(rawData, out data);
-            
+
             SetValue();
         }
 
@@ -719,14 +725,14 @@ namespace BluetoothLEExplorer.Models
             {
                 if (Name == "DeviceName")
                 {
-                    // All devices have DeviceName so this is a special case. 
+                    // All devices have DeviceName so this is a special case.
                     DisplayType = DisplayTypes.UTF8;
                 }
                 else
                 {
                     string buffer = string.Empty;
                     bool isString = true;
-                    
+
                     try
                     {
                        buffer = GattConvert.ToUTF8String(rawData);

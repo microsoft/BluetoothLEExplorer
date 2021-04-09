@@ -110,6 +110,7 @@
     <Compile Include="CustomControls\GattLocalCharacteristicControl.xaml.cs">
       <DependentUpon>GattLocalCharacteristicControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\DisposableObservableCollection.cs" />
     <Compile Include="Models\GattSampleContext.cs" />
     <Compile Include="Models\HidHelper.cs" />
     <Compile Include="Models\ObservableBluetoothLEDevice.cs" />

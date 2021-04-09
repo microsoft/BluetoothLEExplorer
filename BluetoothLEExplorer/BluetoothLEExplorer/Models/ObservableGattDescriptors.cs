@@ -166,10 +166,14 @@ namespace BluetoothLEExplorer.Models
         {
             Descriptor = descriptor;
             Parent = parent;
+        }
+
+        public async Task Initialize()
+        {
             Name = GattDescriptorUuidHelper.ConvertUuidToName(Descriptor.Uuid);
             UUID = Descriptor.Uuid.ToString();
 
-            ReadValueAsync();
+            await ReadValueAsync();
             PropertyChanged += ObservableGattDescriptors_PropertyChanged;
         }
 
@@ -194,7 +198,7 @@ namespace BluetoothLEExplorer.Models
         /// <summary>
         /// Reads the value of the Characteristic
         /// </summary>
-        public async void ReadValueAsync()
+        public async Task ReadValueAsync()
         {
             try
             {

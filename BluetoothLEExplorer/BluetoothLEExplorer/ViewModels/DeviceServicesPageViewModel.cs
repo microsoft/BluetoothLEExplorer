@@ -60,7 +60,7 @@ namespace BluetoothLEExplorer.ViewModels
                 Set(ref errorText, value, "ErrorText");
             }
         }
-        
+
         /// <summary>
         /// Source for <see cref="SelectedCharacteristic"/>
         /// </summary>
@@ -104,7 +104,7 @@ namespace BluetoothLEExplorer.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                Windows.UI.Core.CoreDispatcherPriority.Normal, 
+                Windows.UI.Core.CoreDispatcherPriority.Normal,
                 () =>
             {
             });
@@ -136,6 +136,18 @@ namespace BluetoothLEExplorer.ViewModels
         {
             args.Cancel = false;
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Reenumerate all services
+        /// </summary>
+        public async void Refresh()
+        {
+            Views.Busy.SetBusy(true, "Reenumerating Services for  " + Device.Name);
+
+            await Device.Connect();
+
+            Views.Busy.SetBusy(false);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace BluetoothLEExplorer.Models
     /// <summary>
     /// Wrapper around <see cref="GattDeviceService"/> to make it easier to use
     /// </summary>
-    public class ObservableGattDeviceService : INotifyPropertyChanged
+    public class ObservableGattDeviceService : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
         /// Source for <see cref="Service"/>
@@ -43,6 +43,26 @@ namespace BluetoothLEExplorer.Models
                     service = value;
                     OnPropertyChanged(new PropertyChangedEventArgs("Service"));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Lock around the <see cref="Service"/>.
+        /// </summary>
+        SemaphoreSlim serviceLock = new SemaphoreSlim(1, 1);
+
+        public void Dispose()
+        {
+            try
+            {
+                serviceLock.Wait();
+                var temp = Service;
+                Service = null;
+                temp.Dispose();
+            }
+            finally
+            {
+                serviceLock.Release();
             }
         }
 
@@ -94,7 +114,7 @@ namespace BluetoothLEExplorer.Models
                     OnPropertyChanged(new PropertyChangedEventArgs("SelectedCharacteristic"));
 
                     // The SelectedProperty doesn't exist when this object is first created. This takes
-                    // care of adding the correct event handler after the first time it's changed. 
+                    // care of adding the correct event handler after the first time it's changed.
                     SelectedCharacteristic_PropertyChanged();
                 }
             }
@@ -161,10 +181,22 @@ namespace BluetoothLEExplorer.Models
         /// <param name="service">The service this class wraps</param>
         public ObservableGattDeviceService(GattDeviceService service)
         {
-            Service = service;
-            Name = GattServiceUuidHelper.ConvertUuidToName(service.Uuid);
-            UUID = Service.Uuid.ToString();
-            GetAllCharacteristics();
+            try
+            {
+                serviceLock.Wait();
+                Service = service;
+                Name = GattServiceUuidHelper.ConvertUuidToName(Service.Uuid);
+                UUID = Service.Uuid.ToString();
+            }
+            finally
+            {
+                serviceLock.Release();
+            }
+        }
+
+        public async Task Initialize()
+        {
+            await GetAllCharacteristics();
         }
 
         /// <summary>
@@ -192,7 +224,7 @@ namespace BluetoothLEExplorer.Models
         /// <summary>
         /// Gets all the characteristics of this service
         /// </summary>
-        private async void GetAllCharacteristics()
+        private async Task GetAllCharacteristics()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("ObservableGattDeviceService::getAllCharacteristics: ");
@@ -200,6 +232,8 @@ namespace BluetoothLEExplorer.Models
 
             try
             {
+                await serviceLock.WaitAsync();
+
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
                 GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
@@ -211,6 +245,7 @@ namespace BluetoothLEExplorer.Models
                     sb.Append(error);
                     Debug.WriteLine(sb.ToString());
 
+                    serviceLock.Release();
                     return;
                 }
 
@@ -224,7 +259,9 @@ namespace BluetoothLEExplorer.Models
                     Debug.WriteLine(sb);
                     foreach (GattCharacteristic gattchar in result.Characteristics)
                     {
-                        Characteristics.Add(new ObservableGattCharacteristics(gattchar, this));
+                        ObservableGattCharacteristics temp = new ObservableGattCharacteristics(gattchar, this);
+                        await temp.Initialize();
+                        Characteristics.Add(temp);
                     }
                 }
                 else if (result.Status == GattCommunicationStatus.Unreachable)
@@ -241,7 +278,11 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("getAllCharacteristics: Exception - {0}" + ex.Message);
-                throw;
+                Name = "Exception";
+            }
+            finally
+            {
+                serviceLock.Release();
             }
         }
 

@@ -44,7 +44,7 @@ namespace BluetoothLEExplorer.Models
         /// <summary>
         /// Gets or sets the list of available bluetooth devices
         /// </summary>
-        public ObservableCollection<ObservableBluetoothLEDevice> BluetoothLEDevices { get; set; } = new ObservableCollection<ObservableBluetoothLEDevice>();
+        public DisposableObservableCollection<ObservableBluetoothLEDevice> BluetoothLEDevices { get; set; } = new DisposableObservableCollection<ObservableBluetoothLEDevice>();
 
         /// <summary>
         /// Gets or sets the selected bluetooth device
@@ -252,7 +252,7 @@ namespace BluetoothLEExplorer.Models
                 IsCentralRoleSupported = false;
             }
             else
-            { 
+            {
                 IsPeripheralRoleSupported = adapter.IsPeripheralRoleSupported;
                 IsCentralRoleSupported = adapter.IsCentralRoleSupported;
             }
@@ -303,7 +303,7 @@ namespace BluetoothLEExplorer.Models
             {
                 DevNodeLock.Release();
             }
-            
+
         }
 
         private async void DevNodeWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -318,7 +318,7 @@ namespace BluetoothLEExplorer.Models
             {
                 DevNodeLock.Release();
             }
-            
+
             if(dev != null)
             {
                 dev.Update(args);
@@ -335,6 +335,38 @@ namespace BluetoothLEExplorer.Models
             // Add : delimiters to raw address
             var list = Enumerable.Range(0, addr.Length / 2).Select(i => addr.Substring(i * 2, 2)).ToList();
             return string.Join(":", list);
+        }
+
+        /// <summary>
+        /// Clears all devices
+        /// </summary>
+        public void ClearAllDevices()
+        {
+            try
+            {
+                BluetoothLEDevicesLock.Wait();
+                BluetoothLEDevices.Clear();
+            }
+            finally
+            {
+                BluetoothLEDevicesLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Release all references without clearing all devices
+        /// </summary>
+        public void ReleaseAllReferences()
+        {
+            try
+            {
+                BluetoothLEDevicesLock.Wait();
+                BluetoothLEDevices.Dispose();
+            }
+            finally
+            {
+                BluetoothLEDevicesLock.Release();
+            }
         }
 
         /// <summary>
@@ -400,7 +432,7 @@ namespace BluetoothLEExplorer.Models
             advertisementWatcher = new BluetoothLEAdvertisementWatcher();
             advertisementWatcher.Received += AdvertisementWatcher_Received;
 
-            BluetoothLEDevices.Clear();
+            ClearAllDevices();
 
             deviceWatcher.Start();
             advertisementWatcher.Start();
@@ -514,8 +546,8 @@ namespace BluetoothLEExplorer.Models
                 if (sender == deviceWatcher)
                 {
                     ObservableBluetoothLEDevice dev;
-                        
-                    // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
+
+                    // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
                     try
                     {
                         await BluetoothLEDevicesLock.WaitAsync();
@@ -539,10 +571,10 @@ namespace BluetoothLEExplorer.Models
                     {
                         BluetoothLEDevicesLock.Release();
                     }
-                        
+
                     if(addNewDI == true)
                     {
-                        try 
+                        try
                         {
                             await BluetoothLEDevicesLock.WaitAsync();
                             di = unusedDevices.FirstOrDefault(device => device.Id == deviceInfoUpdate.Id);
@@ -579,7 +611,7 @@ namespace BluetoothLEExplorer.Models
         private async void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
         {
             try
-            { 
+            {
                 // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                 if (sender == deviceWatcher)
                 {
@@ -587,7 +619,7 @@ namespace BluetoothLEExplorer.Models
 
                     try
                     {
-                        // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
+                        // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
                         await BluetoothLEDevicesLock.WaitAsync();
 
                         // Find the corresponding DeviceInformation in the collection and remove it.
@@ -615,7 +647,7 @@ namespace BluetoothLEExplorer.Models
                     {
                         BluetoothLEDevicesLock.Release();
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -656,10 +688,10 @@ namespace BluetoothLEExplorer.Models
                     (bool)dev.DeviceInfo.Properties["System.Devices.Aep.IsConnected"])) ||
                 ((dev.DeviceInfo.Properties.Keys.Contains("System.Devices.Aep.IsPaired") &&
                     (bool)dev.DeviceInfo.Properties["System.Devices.Aep.IsPaired"]));
-                
+
             if (shouldDisplay)
             {
-                // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
+                // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
                 try
                 {
                     await BluetoothLEDevicesLock.WaitAsync();
@@ -685,6 +717,7 @@ namespace BluetoothLEExplorer.Models
                 {
                     await BluetoothLEDevicesLock.WaitAsync();
                     unusedDevices.Add(deviceInfo);
+                    dev.Dispose();
                 }
                 finally
                 {

@@ -107,7 +107,7 @@
                     <Run Text="{x:Bind ViewModel.Device.IsConnected, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
-                <Button Name="RefreshButton" Click="{x:Bind ViewModel.Device.Connect}">
+                <Button Name="RefreshButton" Click="{x:Bind ViewModel.Refresh}">
                     Refresh
                 </Button>
             </StackPanel>
