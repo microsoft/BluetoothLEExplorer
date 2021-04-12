@@ -350,6 +350,9 @@ namespace BluetoothLEExplorer.ViewModels
             }
 
             this.PropertyChanged += ServicePageViewModel_PropertyChanged;
+
+            Notify = SelectedService.IsNotifySet();
+            Indicate = SelectedService.IsIndicateSet();
         }
 
         /// <summary>

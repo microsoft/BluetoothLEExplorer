@@ -279,6 +279,32 @@ namespace BluetoothLEExplorer.Models
             return canIndicate;
         }
 
+        public bool IsNotifySet()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if (!gattchar.IsNotifySet)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public bool IsIndicateSet()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!gattchar.IsIndicateSet)
+                        return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// Gets all the characteristics of this service
         /// </summary>
