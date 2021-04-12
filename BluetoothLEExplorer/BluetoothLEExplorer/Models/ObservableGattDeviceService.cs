@@ -94,7 +94,7 @@ namespace BluetoothLEExplorer.Models
                     OnPropertyChanged(new PropertyChangedEventArgs("SelectedCharacteristic"));
 
                     // The SelectedProperty doesn't exist when this object is first created. This takes
-                    // care of adding the correct event handler after the first time it's changed. 
+                    // care of adding the correct event handler after the first time it's changed.
                     SelectedCharacteristic_PropertyChanged();
                 }
             }
@@ -187,6 +187,96 @@ namespace BluetoothLEExplorer.Models
         private void SelectedCharacteristic_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             GattSampleContext.Context.SelectedCharacteristic = SelectedCharacteristic;
+        }
+
+        public async Task<bool> TurnOnAllNotifications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if(!await gattchar.SetNotify())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        public async Task<bool> TurnOffAllNotifications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if(!await gattchar.StopNotify())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        public async Task<bool> TurnOnAllIndications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!await gattchar.SetIndicate())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        public async Task<bool> TurnOffAllIndications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!await gattchar.StopIndicate())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        public bool CanNotify()
+        {
+            bool canNotify = false;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    canNotify = true;
+                }
+            }
+            return canNotify;
+        }
+
+        public bool CanIndicate()
+        {
+            bool canIndicate = false;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    canIndicate = true;
+                }
+            }
+            return canIndicate;
         }
 
         /// <summary>
