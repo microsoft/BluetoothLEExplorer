@@ -354,9 +354,9 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Release all references without clearing all devices
+        /// Release all resources without clearing all devices
         /// </summary>
-        public void ReleaseAllReferences()
+        public void ReleaseAllResources()
         {
             try
             {
