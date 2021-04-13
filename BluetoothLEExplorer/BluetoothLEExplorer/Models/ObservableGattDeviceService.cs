@@ -189,6 +189,9 @@ namespace BluetoothLEExplorer.Models
             GattSampleContext.Context.SelectedCharacteristic = SelectedCharacteristic;
         }
 
+        /// <summary>
+        /// Turns on notifications for all characterisitics within the service
+        /// </summary>
         public async Task<bool> TurnOnAllNotifications()
         {
             bool success = true;
@@ -205,6 +208,9 @@ namespace BluetoothLEExplorer.Models
             return success;
         }
 
+        /// <summary>
+        /// Turns off notifications for all characterisitics within the service
+        /// </summary>
         public async Task<bool> TurnOffAllNotifications()
         {
             bool success = true;
@@ -221,6 +227,9 @@ namespace BluetoothLEExplorer.Models
             return success;
         }
 
+        /// <summary>
+        /// Turns on indications for all characterisitics within the service
+        /// </summary>
         public async Task<bool> TurnOnAllIndications()
         {
             bool success = true;
@@ -237,6 +246,9 @@ namespace BluetoothLEExplorer.Models
             return success;
         }
 
+        /// <summary>
+        /// Turns on notifications for all characterisitics within the service
+        /// </summary>
         public async Task<bool> TurnOffAllIndications()
         {
             bool success = true;
@@ -253,32 +265,39 @@ namespace BluetoothLEExplorer.Models
             return success;
         }
 
+        /// <summary>
+        /// Verify that the service has at least one characterisitic that has Notify enabled
+        /// </summary>
         public bool CanNotify()
         {
-            bool canNotify = false;
             foreach (var gattchar in Characteristics)
             {
                 if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
                 {
-                    canNotify = true;
+                    return true;
                 }
             }
-            return canNotify;
+            return false;
         }
 
+        /// <summary>
+        /// Verify that the service has at least one characterisitic that has Indicate enabled
+        /// </summary>
         public bool CanIndicate()
         {
-            bool canIndicate = false;
             foreach (var gattchar in Characteristics)
             {
                 if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
                 {
-                    canIndicate = true;
+                    return true;
                 }
             }
-            return canIndicate;
+            return false;
         }
 
+        /// <summary>
+        /// Verify that all characterisitcs of the service that have Notify enabled have Notify set
+        /// </summary>
         public bool IsNotifySet()
         {
             foreach (var gattchar in Characteristics)
@@ -292,6 +311,9 @@ namespace BluetoothLEExplorer.Models
             return true;
         }
 
+        /// <summary>
+        /// Verify that all characterisitcs of the service that have Indicate enabled have Indicate set
+        /// </summary>
         public bool IsIndicateSet()
         {
             foreach (var gattchar in Characteristics)
