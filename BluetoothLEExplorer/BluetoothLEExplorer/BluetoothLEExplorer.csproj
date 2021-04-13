@@ -126,6 +126,7 @@
     <Compile Include="Services\Other\GattProtocolErrorParser.cs" />
     <Compile Include="Services\SettingsServices\SettingsService.cs" />
     <Compile Include="Services\ToastService\ToastService.cs" />
+    <Compile Include="ViewModels\ServicePageViewModel.cs" />
     <Compile Include="ViewModels\Services\AlertNotificationServicePageViewModel.cs" />
     <Compile Include="ViewModels\Services\BloodPressureServicePageViewModel.cs" />
     <Compile Include="ViewModels\Services\CurrentTimeServicePageViewModel.cs" />
@@ -142,6 +143,9 @@
     <Compile Include="ViewModels\GenericGattCharacteristicViewModel.cs" />
     <Compile Include="ViewModels\VirtualKeyboardPageViewModel.cs" />
     <Compile Include="ViewModels\VirtualPeripheralPageViewModel.cs" />
+    <Compile Include="Views\ServicePage.xaml.cs">
+      <DependentUpon>ServicePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Services\AlertNotificationServicePage.xaml.cs">
       <DependentUpon>AlertNotificationServicePage.xaml</DependentUpon>
     </Compile>
@@ -236,6 +240,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\ServicePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Services\AlertNotificationServicePage.xaml">
       <Generator>MSBuild:Compile</Generator>
