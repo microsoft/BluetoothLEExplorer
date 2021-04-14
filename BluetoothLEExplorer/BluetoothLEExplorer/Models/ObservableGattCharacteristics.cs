@@ -394,7 +394,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
-                Value = "Exception!";
+                Value = "Unknown (exception)";
             }
         }
 
@@ -457,7 +457,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine(" - Exception: {0}" + ex.Message);
-                Value = "Exception";
+                Value = "Unknown (exception)";
             }
         }
 

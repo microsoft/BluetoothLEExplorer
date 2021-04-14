@@ -221,7 +221,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
-                Value = "Exception!";
+                Value = "Unknown (exception)";
             }
         }
 

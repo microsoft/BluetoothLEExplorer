@@ -664,7 +664,7 @@ namespace BluetoothLEExplorer.Models
                 }
                 catch
                 {
-                    Name = "Exception";
+                    Name = "Unknown (exception)";
                 }
 
             });
