@@ -85,6 +85,29 @@ namespace BluetoothLEExplorer.ViewModels
         }
 
         /// <summary>
+        /// Source for <see cref="SelectedService"/>
+        /// </summary>
+        private ObservableGattDeviceService selectedService;
+
+        /// <summary>
+        /// Gets or sets the currently selected service
+        /// </summary>
+        public ObservableGattDeviceService SelectedService
+        {
+            get
+            {
+                return selectedService;
+            }
+
+            set
+            {
+                Set(ref selectedService, value, "SelectedService");
+                context.SelectedService = SelectedService;
+                NavigationService.Navigate(typeof(ServicePage));
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DeviceServicesPageViewModel" /> class.
         /// </summary>
         public DeviceServicesPageViewModel()

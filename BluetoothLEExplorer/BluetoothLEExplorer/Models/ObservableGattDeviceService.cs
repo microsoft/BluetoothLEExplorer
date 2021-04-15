@@ -222,6 +222,144 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
+        /// Turns on notifications for all characterisitics within the service
+        /// </summary>
+        public async Task<bool> TurnOnAllNotifications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if(!await gattchar.SetNotify())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Turns off notifications for all characterisitics within the service
+        /// </summary>
+        public async Task<bool> TurnOffAllNotifications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if(!await gattchar.StopNotify())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Turns on indications for all characterisitics within the service
+        /// </summary>
+        public async Task<bool> TurnOnAllIndications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!await gattchar.SetIndicate())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Turns on notifications for all characterisitics within the service
+        /// </summary>
+        public async Task<bool> TurnOffAllIndications()
+        {
+            bool success = true;
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!await gattchar.StopIndicate())
+                    {
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Verify that the service has at least one characterisitic that has Notify enabled
+        /// </summary>
+        public bool CanNotify()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verify that the service has at least one characterisitic that has Indicate enabled
+        /// </summary>
+        public bool CanIndicate()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verify that all characterisitcs of the service that have Notify enabled have Notify set
+        /// </summary>
+        public bool IsNotifySet()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                {
+                    if (!gattchar.IsNotifySet)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Verify that all characterisitcs of the service that have Indicate enabled have Indicate set
+        /// </summary>
+        public bool IsIndicateSet()
+        {
+            foreach (var gattchar in Characteristics)
+            {
+                if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate))
+                {
+                    if (!gattchar.IsIndicateSet)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Gets all the characteristics of this service
         /// </summary>
         private async Task GetAllCharacteristics()

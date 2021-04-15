@@ -52,6 +52,11 @@ namespace BluetoothLEExplorer.Models
         public ObservableBluetoothLEDevice SelectedBluetoothLEDevice { get; set; } = null;
 
         /// <summary>
+        /// Gets or sets the selected device service
+        /// </summary>
+        public ObservableGattDeviceService SelectedService { get; set; } = null;
+
+        /// <summary>
         /// Gets or sets the selected characteristic
         /// </summary>
         public ObservableGattCharacteristics SelectedCharacteristic { get; set; } = null;

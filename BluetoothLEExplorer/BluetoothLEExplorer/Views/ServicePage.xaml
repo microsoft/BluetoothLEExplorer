@@ -1,4 +1,4 @@
-    <Page x:Class="BluetoothLEExplorer.Views.DeviceServicesPage"
+    <Page x:Class="BluetoothLEExplorer.Views.ServicePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
@@ -14,7 +14,7 @@
       mc:Ignorable="d">
 
     <Page.DataContext>
-        <vm:DeviceServicesPageViewModel x:Name="ViewModel" />
+        <vm:ServicePageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
     <Page.Resources>
@@ -77,7 +77,7 @@
         <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="Device Services Page" />
+                             RelativePanel.AlignTopWithPanel="True" Text="Service Page" />
 
         <!--  content  -->
 
@@ -88,71 +88,54 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
-                <TextBlock Text="{x:Bind ViewModel.Device.ErrorText}" Visibility="{x:Bind ViewModel.Device.ErrorText, Converter={StaticResource VisibleWhenBlankConverter}}" />
                 <TextBlock>
                     <Run Text="BT Address: " />
-                    <Run Text="{x:Bind ViewModel.Device.BluetoothAddressAsString, Mode=OneWay}"/>
+                    <Run Text="{x:Bind ViewModel.SelectedDevice.BluetoothAddressAsString, Mode=OneWay}"/>
                 </TextBlock>
                 <TextBlock>
-                    <Run Text="Number of Services:" />
-                    <Run Text="{x:Bind ViewModel.Device.Services.Count, Mode=OneWay}" />
+                    <Run Text="Service Name:" />
+                    <Run Text="{x:Bind ViewModel.SelectedService.Name, Mode=OneWay}" />
                 </TextBlock>
-                <TextBlock Visibility="{x:Bind ViewModel.IsSecureConnectionSupported, Converter={StaticResource VisibleWhenTrueConverter}}" >
-                    <Run Text="BT 4.2 Secure Connection:" />
-                    <Run Text="{x:Bind ViewModel.Device.IsSecureConnection, Mode=OneWay}" />
-                </TextBlock>
-                <Border Background="{x:Bind ViewModel.Device.IsConnected, Converter={StaticResource BackgroundColorConverter}}">
-                    <TextBlock>
-                    <Run Text="Device Connected:" />
-                    <Run Text="{x:Bind ViewModel.Device.IsConnected, Mode=OneWay}" />
-                    </TextBlock>
-                </Border>
-                <Button Name="RefreshButton" Click="{x:Bind ViewModel.Refresh}">
-                    Refresh
-                </Button>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Visibility="{x:Bind ViewModel.ServiceCanNotify, Converter={StaticResource VisibleWhenTrueConverter}}">
+                    <ToggleSwitch x:Name="NotifySwitch" Header="Notify"
+                        OffContent="Off" OnContent="On" IsOn="{x:Bind ViewModel.Notify, Mode=TwoWay}" />
+                    <ProgressRing Visibility="{x:Bind ViewModel.NotifyProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}"
+                        IsActive="{x:Bind ViewModel.NotifyProgress, Mode=OneWay}" />
+                    <TextBlock Text="Error setting notification" Foreground="Red"
+                        Margin="-60, 30, 0, 0"
+                        Visibility="{x:Bind ViewModel.NotifyError, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Visibility="{x:Bind ViewModel.ServiceCanIndicate, Converter={StaticResource VisibleWhenTrueConverter}}">
+                    <ToggleSwitch x:Name="IndicateSwitch" Header="Indicate"
+                        OffContent="Off" OnContent="On" IsOn="{x:Bind ViewModel.Indicate, Mode=TwoWay}"/>
+                    <ProgressRing Visibility="{x:Bind ViewModel.IndicateProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}"
+                        IsActive="{x:Bind ViewModel.IndicateProgress, Mode=OneWay}"/>
+                    <TextBlock x:Name="IndicateError" Text="Error setting notification" Foreground="Red"
+                        Margin="-60, 30, 0, 0"
+                        Visibility="{x:Bind ViewModel.IndicateError, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" />
+                </StackPanel>
             </StackPanel>
 
             <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" >
-                <ListView  x:Name="ServicesListView"
-                           IsItemClickEnabled="True"
-                           SelectionMode="Single"
-                           ItemsSource="{x:Bind ViewModel.Device.Services, Mode=OneWay}"
-                           ItemClick="ServicesListView_ItemClick">
-
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ObservableGattDeviceService" >
-                            <StackPanel Margin="0,0,0,15">
-                                <TextBlock >
-                                    <Run Text="Service Name: " />
-                                    <Run Text="{x:Bind Name}" FontWeight="Bold" />
-                                </TextBlock>
-                                <TextBlock FontSize="12">
-                                    <Run Text="Service UUID: " />
-                                    <Run Text="{x:Bind UUID}" FontWeight="Bold" />
-                                </TextBlock>
-                                <ListView x:Name="CharacteristicsListView"
+                <ListView x:Name="CharacteristicsListView"
                                           IsItemClickEnabled="True"
                                           SelectionMode="Single"
-                                          ItemsSource="{x:Bind Characteristics}"
+                                          ItemsSource="{x:Bind ViewModel.SelectedService.Characteristics}"
                                           ItemClick="CharacteristicsListView_ItemClick" >
-                                    <ListView.ItemTemplate >
-                                        <DataTemplate x:DataType="models:ObservableGattCharacteristics" >
-                                            <TextBlock TextWrapping="WrapWholeWords">
-                                                <Run x:Name="CharacteristicText" Text="Characteristic Name:" />
-                                                <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" />
-                                                <Run Text=" - User Description: " />
-                                                <Run x:Name="CharacteristicUserDescription" Text="{x:Bind Characteristic.UserDescription, Mode=OneWay}" />
-                                                <Run Text=" - " />
-                                                <Run x:Name="CharacteristicHandleText" Text="Handle: " />
-                                                <Run Text="{x:Bind Characteristic.AttributeHandle, Mode=OneWay}" FontWeight="Bold" />
-                                                <Run Text=" - " />
-                                                <Run x:Name="CharValueText" Text="Value: " />
-                                                <Run Text="{x:Bind Value, Mode=OneWay}" FontWeight="Bold" />
-                                            </TextBlock>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
-                            </StackPanel>
+                    <ListView.ItemTemplate >
+                        <DataTemplate x:DataType="models:ObservableGattCharacteristics" >
+                            <TextBlock TextWrapping="WrapWholeWords">
+                                <Run x:Name="CharacteristicText" Text="Characteristic Name:" />
+                                <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" />
+                                <Run Text=" - User Description: " />
+                                <Run x:Name="CharacteristicUserDescription" Text="{x:Bind Characteristic.UserDescription, Mode=OneWay}" />
+                                <Run Text=" - " />
+                                <Run x:Name="CharacteristicHandleText" Text="Handle: " />
+                                <Run Text="{x:Bind Characteristic.AttributeHandle, Mode=OneWay}" FontWeight="Bold" />
+                                <Run Text=" - " />
+                                <Run x:Name="CharValueText" Text="Value: " />
+                                <Run Text="{x:Bind Value, Mode=OneWay}" FontWeight="Bold" />
+                            </TextBlock>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
