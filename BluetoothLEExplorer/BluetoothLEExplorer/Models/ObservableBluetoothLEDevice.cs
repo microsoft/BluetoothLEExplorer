@@ -425,14 +425,12 @@ namespace BluetoothLEExplorer.Models
         public void Dispose()
         {
             Services.Clear();
+            var temp = bluetoothLEDevice;
             try
             {
                 bluetoothLEDeviceLock.Wait();
-                if (BluetoothLEDevice != null)
+                if (bluetoothLEDevice != null)
                 {
-                    BluetoothLEDevice.ConnectionStatusChanged -= BluetoothLEDevice_ConnectionStatusChanged;
-                    BluetoothLEDevice.NameChanged -= BluetoothLEDevice_NameChanged;
-                    BluetoothLEDevice.Dispose();
                     BluetoothLEDevice = null;
                 }
             }
@@ -440,6 +438,9 @@ namespace BluetoothLEExplorer.Models
             {
                 bluetoothLEDeviceLock.Release();
             }
+            temp.ConnectionStatusChanged -= BluetoothLEDevice_ConnectionStatusChanged;
+            temp.NameChanged -= BluetoothLEDevice_NameChanged;
+            temp.Dispose();
 
             IsConnected = false;
         }
@@ -511,89 +512,90 @@ namespace BluetoothLEExplorer.Models
                 try
                 {
                     await bluetoothLEDeviceLock.WaitAsync();
-                    if (BluetoothLEDevice == null)
+                    if (bluetoothLEDevice == null)
                     {
                         Debug.WriteLine(debugMsg + "Calling BluetoothLEDevice.FromIdAsync");
                         BluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(DeviceInfo.Id);
+
+                        if (bluetoothLEDevice == null)
+                        {
+                            ret = false;
+                            Debug.WriteLine(debugMsg + "BluetoothLEDevice is null");
+
+                            MessageDialog dialog = new MessageDialog("No permission to access device", "Connection error");
+                            await dialog.ShowAsync();
+                            return;
+                        }
+                        else
+                        {
+                            // Setup our event handlers and view model properties
+                            BluetoothLEDevice.ConnectionStatusChanged += BluetoothLEDevice_ConnectionStatusChanged;
+                            BluetoothLEDevice.NameChanged += BluetoothLEDevice_NameChanged;
+                        }
                     }
                     else
                     {
                         Debug.WriteLine(debugMsg + "Previously connected, not calling BluetoothLEDevice.FromIdAsync");
                     }
+                    
+                    Debug.WriteLine(debugMsg + "BluetoothLEDevice is " + BluetoothLEDevice.Name);
 
-                    if (BluetoothLEDevice == null)
+                    IsPaired = DeviceInfo.Pairing.IsPaired;
+                    IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
+
+                    UpdateSecureConnectionStatus();
+
+                    Name = bluetoothLEDevice.Name;
+
+                    // Get all the services for this device
+                    CancellationTokenSource GetGattServicesAsyncTokenSource = new CancellationTokenSource(5000);
+
+                    BluetoothCacheMode cacheMode =  BluetoothLEExplorer.Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached;
+
+                    // In case we connected before, clear the service list and recreate it
+                    Services.Clear();
+
+                    var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(cacheMode), GetGattServicesAsyncTokenSource.Token);
+
+                    result = await GetGattServicesAsyncTask.Result;
+
+                    if (result.Status == GattCommunicationStatus.Success)
                     {
-                        ret = false;
-                        Debug.WriteLine(debugMsg + "BluetoothLEDevice is null");
-
-                        MessageDialog dialog = new MessageDialog("No permission to access device", "Connection error");
-                        await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        Debug.WriteLine(debugMsg + "BluetoothLEDevice is " + BluetoothLEDevice.Name);
-
-                        // Setup our event handlers and view model properties
-                        BluetoothLEDevice.ConnectionStatusChanged += BluetoothLEDevice_ConnectionStatusChanged;
-                        BluetoothLEDevice.NameChanged += BluetoothLEDevice_NameChanged;
-
-                        IsPaired = DeviceInfo.Pairing.IsPaired;
-                        IsConnected = BluetoothLEDevice.ConnectionStatus == BluetoothConnectionStatus.Connected;
-
-                        UpdateSecureConnectionStatus();
-
-                        Name = BluetoothLEDevice.Name;
-
-                        // Get all the services for this device
-                        CancellationTokenSource GetGattServicesAsyncTokenSource = new CancellationTokenSource(5000);
-
-                        BluetoothCacheMode cacheMode =  BluetoothLEExplorer.Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached;
-
-                        // In case we connected before, clear the service list and recreate it
-                        Services.Clear();
-
-                        var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(cacheMode), GetGattServicesAsyncTokenSource.Token);
-
-                        result = await GetGattServicesAsyncTask.Result;
-
-                        if (result.Status == GattCommunicationStatus.Success)
+                        System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
+                        foreach (var serv in result.Services)
                         {
-                            System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
-                            foreach (var serv in result.Services)
+                            if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
                             {
-                                if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
-                                {
-                                    ObservableGattDeviceService temp = new ObservableGattDeviceService(serv);
-                                    // This isn't awaited so that the user can disconnect while the services are still being enumerated
-                                    temp.Initialize();
-                                    Services.Add(temp);
-                                }
-                                else
-                                {
-                                    serv.Dispose();
-                                }
+                                ObservableGattDeviceService temp = new ObservableGattDeviceService(serv);
+                                // This isn't awaited so that the user can disconnect while the services are still being enumerated
+                                temp.Initialize();
+                                Services.Add(temp);
                             }
+                            else
+                            {
+                                serv.Dispose();
+                            }
+                        }
 
-                            ServiceCount = Services.Count();
-                            ret = true;
-                        }
-                        else if (result.Status == GattCommunicationStatus.ProtocolError)
-                        {
-                            ErrorText = debugMsg + "GetGattServiceAsync Error: Protocol Error - " + result.ProtocolError.Value;
-                            System.Diagnostics.Debug.WriteLine(ErrorText);
-                            string msg = "Connection protocol error: " + result.ProtocolError.Value.ToString();
-                            var messageDialog = new MessageDialog(msg, "Connection failures");
-                            await messageDialog.ShowAsync();
+                        ServiceCount = Services.Count();
+                        ret = true;
+                    }
+                    else if (result.Status == GattCommunicationStatus.ProtocolError)
+                    {
+                        ErrorText = debugMsg + "GetGattServiceAsync Error: Protocol Error - " + result.ProtocolError.Value;
+                        System.Diagnostics.Debug.WriteLine(ErrorText);
+                        string msg = "Connection protocol error: " + result.ProtocolError.Value.ToString();
+                        var messageDialog = new MessageDialog(msg, "Connection failures");
+                        await messageDialog.ShowAsync();
 
-                        }
-                        else if (result.Status == GattCommunicationStatus.Unreachable)
-                        {
-                            ErrorText = debugMsg + "GetGattServiceAsync Error: Unreachable";
-                            System.Diagnostics.Debug.WriteLine(ErrorText);
-                            string msg = "Device unreachable";
-                            var messageDialog = new MessageDialog(msg, "Connection failures");
-                            await messageDialog.ShowAsync();
-                        }
+                    }
+                    else if (result.Status == GattCommunicationStatus.Unreachable)
+                    {
+                        ErrorText = debugMsg + "GetGattServiceAsync Error: Unreachable";
+                        System.Diagnostics.Debug.WriteLine(ErrorText);
+                        string msg = "Device unreachable";
+                        var messageDialog = new MessageDialog(msg, "Connection failures");
+                        await messageDialog.ShowAsync();
                     }
                 }
                 catch (Exception ex)
@@ -735,7 +737,7 @@ namespace BluetoothLEExplorer.Models
         /// <returns>Name of this characteristic</returns>
         public override string ToString()
         {
-            return this.Name;
+            return this.name;
         }
 
         /// <summary>

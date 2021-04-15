@@ -321,8 +321,8 @@ namespace BluetoothLEExplorer.Models
             Characteristic = characteristic;
             Parent = parent;
 
-            Name = GattCharacteristicUuidHelper.ConvertUuidToName(Characteristic.Uuid);
-            UUID = Characteristic.Uuid.ToString();
+            Name = GattCharacteristicUuidHelper.ConvertUuidToName(characteristic.Uuid);
+            UUID = characteristic.Uuid.ToString();
         }
 
         public async Task Initialize()
@@ -375,7 +375,7 @@ namespace BluetoothLEExplorer.Models
         {
             try
             {
-                GattReadResult result = await Characteristic.ReadValueAsync(
+                GattReadResult result = await characteristic.ReadValueAsync(
                     BluetoothLEExplorer.Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
@@ -394,7 +394,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
-                Value = "Unknown (exception)";
+                Value = "Unknown (exception: " + ex.Message + ")";
             }
         }
 
@@ -428,7 +428,7 @@ namespace BluetoothLEExplorer.Models
 
             try
             {
-                GattDescriptorsResult result = await Characteristic.GetDescriptorsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+                GattDescriptorsResult result = await characteristic.GetDescriptorsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
@@ -457,7 +457,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine(" - Exception: {0}" + ex.Message);
-                Value = "Unknown (exception)";
+                Value = "Unknown (exception: " + ex.Message + ")";
             }
         }
 
@@ -479,7 +479,7 @@ namespace BluetoothLEExplorer.Models
                 // We receive them in the ValueChanged event handler.
                 // Note that this sample configures either Indicate or Notify, but not both.
                 var result = await
-                        Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                        characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.Indicate);
                 if (result == GattCommunicationStatus.Success)
                 {
@@ -536,7 +536,7 @@ namespace BluetoothLEExplorer.Models
                 // We receive them in the ValueChanged event handler.
                 // Note that this sample configures either Indicate or Notify, but not both.
                 var result = await
-                        Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                        characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.None);
                 if (result == GattCommunicationStatus.Success)
                 {
@@ -586,7 +586,7 @@ namespace BluetoothLEExplorer.Models
                 // We receive them in the ValueChanged event handler.
                 // Note that this sample configures either Indicate or Notify, but not both.
                 var result = await
-                        Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                        characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.Notify);
                 if (result == GattCommunicationStatus.Success)
                 {
@@ -643,7 +643,7 @@ namespace BluetoothLEExplorer.Models
                 // We receive them in the ValueChanged event handler.
                 // Note that this sample configures either Indicate or Notify, but not both.
                 var result = await
-                        Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                        characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.None);
                 if (result == GattCommunicationStatus.Success)
                 {
@@ -715,15 +715,15 @@ namespace BluetoothLEExplorer.Models
 
             GattPresentationFormat format = null;
 
-            if (Characteristic.PresentationFormats.Count > 0)
+            if (characteristic.PresentationFormats.Count > 0)
             {
-                format = Characteristic.PresentationFormats[0];
+                format = characteristic.PresentationFormats[0];
             }
 
             // Determine what to set our DisplayType to
             if (format == null && DisplayType == DisplayTypes.NotSet)
             {
-                if (Name == "DeviceName")
+                if (name == "DeviceName")
                 {
                     // All devices have DeviceName so this is a special case.
                     DisplayType = DisplayTypes.UTF8;

@@ -53,17 +53,17 @@ namespace BluetoothLEExplorer.Models
 
         public void Dispose()
         {
+            var temp = service;
             try
             {
                 serviceLock.Wait();
-                var temp = Service;
                 Service = null;
-                temp.Dispose();
             }
             finally
             {
                 serviceLock.Release();
             }
+            temp.Dispose();
         }
 
         /// <summary>
@@ -185,13 +185,13 @@ namespace BluetoothLEExplorer.Models
             {
                 serviceLock.Wait();
                 Service = service;
-                Name = GattServiceUuidHelper.ConvertUuidToName(Service.Uuid);
-                UUID = Service.Uuid.ToString();
             }
             finally
             {
                 serviceLock.Release();
             }
+            Name = GattServiceUuidHelper.ConvertUuidToName(service.Uuid);
+            UUID = service.Uuid.ToString();
         }
 
         public async Task Initialize()
@@ -206,7 +206,7 @@ namespace BluetoothLEExplorer.Models
         {
             if (hasSelectedCharacteristicPropertyChangedHandler == false)
             {
-                SelectedCharacteristic.PropertyChanged += SelectedCharacteristic_PropertyChanged;
+                selectedCharacteristic.PropertyChanged += SelectedCharacteristic_PropertyChanged;
                 hasSelectedCharacteristicPropertyChangedHandler = true;
             }
         }
@@ -218,7 +218,7 @@ namespace BluetoothLEExplorer.Models
         /// <param name="e"></param>
         private void SelectedCharacteristic_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            GattSampleContext.Context.SelectedCharacteristic = SelectedCharacteristic;
+            GattSampleContext.Context.SelectedCharacteristic = selectedCharacteristic;
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace BluetoothLEExplorer.Models
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("ObservableGattDeviceService::getAllCharacteristics: ");
-            sb.Append(Name);
+            sb.Append(name);
 
             try
             {
@@ -236,7 +236,7 @@ namespace BluetoothLEExplorer.Models
 
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
-                GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+                GattOpenStatus status = await service.OpenAsync(GattSharingMode.SharedReadAndWrite);
 
                 if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
                 {
@@ -245,11 +245,10 @@ namespace BluetoothLEExplorer.Models
                     sb.Append(error);
                     Debug.WriteLine(sb.ToString());
 
-                    serviceLock.Release();
                     return;
                 }
 
-                GattCharacteristicsResult result = await Service.GetCharacteristicsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+                GattCharacteristicsResult result = await service.GetCharacteristicsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
@@ -278,7 +277,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("getAllCharacteristics: Exception - {0}" + ex.Message);
-                Name = "Unknown (exception)";
+                Name += " - Exception: " + ex.Message;
             }
             finally
             {
