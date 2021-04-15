@@ -66,6 +66,8 @@ namespace BluetoothLEExplorer
                     }
                 }
 
+                GattSampleContext.Context.ReleaseAllResources();
+
                 deferral.Complete();
             }
             catch(Exception ex)

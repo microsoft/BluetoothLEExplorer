@@ -166,10 +166,14 @@ namespace BluetoothLEExplorer.Models
         {
             Descriptor = descriptor;
             Parent = parent;
-            Name = GattDescriptorUuidHelper.ConvertUuidToName(Descriptor.Uuid);
-            UUID = Descriptor.Uuid.ToString();
+        }
 
-            ReadValueAsync();
+        public async Task Initialize()
+        {
+            Name = GattDescriptorUuidHelper.ConvertUuidToName(descriptor.Uuid);
+            UUID = descriptor.Uuid.ToString();
+
+            await ReadValueAsync();
             PropertyChanged += ObservableGattDescriptors_PropertyChanged;
         }
 
@@ -194,11 +198,11 @@ namespace BluetoothLEExplorer.Models
         /// <summary>
         /// Reads the value of the Characteristic
         /// </summary>
-        public async void ReadValueAsync()
+        public async Task ReadValueAsync()
         {
             try
             {
-                GattReadResult result = await Descriptor.ReadValueAsync(
+                GattReadResult result = await descriptor.ReadValueAsync(
                     Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
@@ -217,7 +221,7 @@ namespace BluetoothLEExplorer.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
-                Value = "Exception!";
+                Value = "Unknown (exception: " + ex.Message + ")";
             }
         }
 
