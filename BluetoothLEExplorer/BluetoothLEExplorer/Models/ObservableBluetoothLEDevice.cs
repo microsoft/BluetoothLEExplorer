@@ -461,10 +461,13 @@ namespace BluetoothLEExplorer.Models
             {
                 bluetoothLEDeviceLock.Release();
             }
-            temp.ConnectionStatusChanged -= BluetoothLEDevice_ConnectionStatusChanged;
-            temp.NameChanged -= BluetoothLEDevice_NameChanged;
-            temp.Dispose();
 
+            if (temp != null)
+            {
+                temp.ConnectionStatusChanged -= BluetoothLEDevice_ConnectionStatusChanged;
+                temp.NameChanged -= BluetoothLEDevice_NameChanged;
+                temp.Dispose();
+            }
             IsConnected = false;
         }
 
@@ -561,7 +564,7 @@ namespace BluetoothLEExplorer.Models
                     {
                         Debug.WriteLine(debugMsg + "Previously connected, not calling BluetoothLEDevice.FromIdAsync");
                     }
-                    
+
                     Debug.WriteLine(debugMsg + "BluetoothLEDevice is " + BluetoothLEDevice.Name);
 
                     Name = bluetoothLEDevice.Name;

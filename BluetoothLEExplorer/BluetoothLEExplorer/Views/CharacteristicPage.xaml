@@ -211,7 +211,7 @@
                 <RelativePanel VerticalAlignment="Center" Visibility="{x:Bind ViewModel.CharacteristicValueVisible, Converter={StaticResource VisibleWhenTrueConverter}}" >
                     <TextBlock Name="ReadValueText" Text="Read Value: " VerticalAlignment="Center" Width="100" Height="32" Margin="0,5,5,5"/>
                     <Border Name="Value" Background="LightGray" RelativePanel.RightOf="ReadValueText" RelativePanel.AlignVerticalCenterWith="ReadValueText" MinWidth="75" Height="32" Margin="5" >
-                        <TextBlock Text="{x:Bind ViewModel.Characteristic.Value, Mode=OneWay}" VerticalAlignment="Center"  Margin="5,0" TextWrapping="WrapWholeWords"/>
+                        <TextBlock Text="{x:Bind ViewModel.Characteristic.Value, Mode=OneWay}" VerticalAlignment="Center"  Margin="5,0" TextWrapping="Wrap" IsTextSelectionEnabled="True" HorizontalAlignment="Stretch"/>
                     </Border>
                     <Button Name="ReadAgainButton" Content="Read Again" Click="{x:Bind ViewModel.Characteristic.ReadValueAsync}" Visibility="{x:Bind ViewModel.CharacteristicCanBeRead, Converter={StaticResource VisibleWhenTrueConverter}}" Margin="5" Width="100" Height="32" d:LayoutOverrides="LeftMargin, RightMargin" />
 
@@ -228,10 +228,9 @@
 
             <RelativePanel Grid.Row="2" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.CharacteristicCanWrite, Converter={StaticResource VisibleWhenTrueConverter}}">
                 <TextBlock x:Name="WriteValueText" Text="Write Value: " Margin="0,5,5,5" VerticalAlignment="Center" Width="100" />
-                <TextBox x:Name="WriteValue" Text="{x:Bind ViewModel.ValueToWrite, Mode=TwoWay}" VerticalAlignment="Center" Width="100" Margin="5" 
-                         RelativePanel.RightOf="WriteValueText" TextChanging="WriteValue_TextChanging" 
-                         />
-                <Button x:Name="WriteButton" Content="Write" Click="{x:Bind ViewModel.WriteValue}" Margin="5" RelativePanel.RightOf="WriteValue" />
+                <TextBox x:Name="WriteValue" Text="{x:Bind ViewModel.ValueToWrite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" 
+                         RelativePanel.RightOf="WriteValueText" TextChanging="WriteValue_TextChanging" KeyUp="DetectEnter_Keydown"/>
+                <Button x:Name="WriteButton" Content="Write" Click="{x:Bind ViewModel.WriteValue}" Margin="5" RelativePanel.RightOf="WriteValue"/>
                 <!-- The radio buttons need to be in different groups because they are all bound to the same property, so it takes care of which ones stays on vs off. If there is no group then the stackpanel container -->
                 <!-- groups them and it conflicts with the value converter -->
                 <StackPanel Name="WriteType" Orientation="Horizontal" Margin="5">

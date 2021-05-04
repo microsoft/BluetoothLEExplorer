@@ -89,7 +89,7 @@
 
             <StackPanel Grid.Row="0">
                 <TextBlock Text="{x:Bind ViewModel.Device.ErrorText}" Visibility="{x:Bind ViewModel.Device.ErrorText, Converter={StaticResource VisibleWhenBlankConverter}}" />
-                <TextBlock>
+                <TextBlock IsTextSelectionEnabled="True">
                     <Run Text="BT Address: " />
                     <Run Text="{x:Bind ViewModel.Device.BluetoothAddressAsString, Mode=OneWay}"/>
                 </TextBlock>

@@ -643,6 +643,7 @@ namespace BluetoothLEExplorer.ViewModels
                     {
                         NotifyUser.Insert(0, "Unable to write data - Protocol error");
                     }
+                    ValueToWrite = String.Empty;
                 }
                 catch (Exception ex) when ((uint)ex.HResult == 0x80650003 || (uint)ex.HResult == 0x80070005)
                 {

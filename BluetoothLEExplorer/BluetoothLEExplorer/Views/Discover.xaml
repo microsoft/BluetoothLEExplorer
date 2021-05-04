@@ -9,7 +9,7 @@
       xmlns:local="using:BluetoothLEExplorer.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:converters="using:Template10.Converters"
-      xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d" 
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels" mc:Ignorable="d"
       xmlns:models="using:BluetoothLEExplorer.Models"
       xmlns:release="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,5)"
       xmlns:insider="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,5)"
@@ -114,8 +114,8 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
+
+
 
         <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
@@ -134,10 +134,10 @@
             <TextBlock Text="Central role is not supported on this device" />
         </RelativePanel>
 
-        <ProgressBar x:Name="progressBar" 
+        <ProgressBar x:Name="progressBar"
                      IsEnabled="{x:Bind ViewModel.IsEnumerating, Mode=OneWay }"
                      IsIndeterminate="{x:Bind ViewModel.IsEnumerating, Mode=OneWay }"
-                     RelativePanel.Below="pageHeader" 
+                     RelativePanel.Below="pageHeader"
                      RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                      Visibility="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource VisibleWhenTrueConverter}}"/>
 
@@ -153,20 +153,20 @@
                     <TextBlock Text="Enumeration finished" Visibility="{x:Bind ViewModel.EnumerationFinished, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" Margin="10,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
                 <CheckBox Content="Continuous Enumeration" IsChecked="{x:Bind ViewModel.ContinuousEnumeration, Mode=TwoWay}" />
-                
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5">
                     <TextBlock Text="Filter: " VerticalAlignment="Center" Margin="0, 0, 5, 0"/>
                     <TextBox Text="{Binding GridFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  />
                 </StackPanel>
-                            
+
                 <TextBlock>
                     <Run Text="Total Device Count:" />
                     <Run Text="{x:Bind ViewModel.Context.BluetoothLEDevices.Count, Mode=OneWay}" />
-                </TextBlock> 
+                </TextBlock>
             </StackPanel>
 
-            <GridView Grid.Row="1" x:Name="DevicesListView" 
-                ItemsSource="{x:Bind ViewModel.DeviceList, Mode=OneWay}"   
+            <GridView Grid.Row="1" x:Name="DevicesListView"
+                ItemsSource="{x:Bind ViewModel.DeviceList, Mode=OneWay}"
                 SelectedItem="{x:Bind ViewModel.SelectedDevice, Mode=TwoWay}" Margin="0,20,0,0">
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -200,7 +200,7 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <Border BorderBrush="Black" BorderThickness="2" >
                                     <Image Grid.Column="0" x:Name="Glyph" Source="{Binding Glyph}"  Height="40" Width="40" Margin="5" />
                                 </Border>
@@ -214,7 +214,7 @@
                                 <TextBlock TextWrapping="Wrap">
                                     Name: <Run Text="{x:Bind Name, Mode=OneWay}" />
                                 </TextBlock>
-                                <TextBlock TextWrapping="WrapWholeWords" Foreground="Black">
+                                <TextBlock TextWrapping="WrapWholeWords" Foreground="Black" IsTextSelectionEnabled="True">
                                     BT Address: <Run Text="{x:Bind BluetoothAddressAsString, Mode=OneTime}" />
                                 </TextBlock>
                                 <TextBlock Foreground="Black">
@@ -226,7 +226,7 @@
                                 <TextBlock Foreground="Black">
                                     Paired: <Run Text="{x:Bind IsPaired, Mode=OneWay}"/>
                                 </TextBlock>
-                                <TextBlock Visibility="{x:Bind ServiceCount, Converter={StaticResource CollapsedWhenZero}}" Foreground="Black" > 
+                                <TextBlock Visibility="{x:Bind ServiceCount, Converter={StaticResource CollapsedWhenZero}}" Foreground="Black" >
                                     Service Count: <Run Text="{x:Bind ServiceCount, Mode=OneWay}"/>
                                 </TextBlock>
                                 <TextBlock>
