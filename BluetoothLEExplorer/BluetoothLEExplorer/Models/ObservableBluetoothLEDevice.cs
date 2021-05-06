@@ -89,11 +89,6 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
-        /// Lock around the <see cref="BluetoothLEDevice"/>
-        /// </summary>
-        private SemaphoreSlim bluetoothLEDeviceLock = new SemaphoreSlim(1, 1);
-
-        /// <summary>
         /// Source for <see cref="Glyph"/>
         /// </summary>
         private BitmapImage glyph;
@@ -449,18 +444,8 @@ namespace BluetoothLEExplorer.Models
         {
             Services.Clear();
             var temp = bluetoothLEDevice;
-            try
-            {
-                bluetoothLEDeviceLock.Wait();
-                if (bluetoothLEDevice != null)
-                {
-                    BluetoothLEDevice = null;
-                }
-            }
-            finally
-            {
-                bluetoothLEDeviceLock.Release();
-            }
+
+            BluetoothLEDevice = null;
 
             if (temp != null)
             {
@@ -538,7 +523,6 @@ namespace BluetoothLEExplorer.Models
                 Debug.WriteLine(debugMsg + "In UI thread");
                 try
                 {
-                    await bluetoothLEDeviceLock.WaitAsync();
                     if (bluetoothLEDevice == null)
                     {
                         Debug.WriteLine(debugMsg + "Calling BluetoothLEDevice.FromIdAsync");
@@ -635,10 +619,6 @@ namespace BluetoothLEExplorer.Models
 
                     // Debugger break here so we can catch unknown exceptions
                     Debugger.Break();
-                }
-                finally
-                {
-                    bluetoothLEDeviceLock.Release();
                 }
             });
 

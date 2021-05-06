@@ -46,24 +46,14 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
-        /// <summary>
-        /// Lock around the <see cref="Service"/>.
-        /// </summary>
-        SemaphoreSlim serviceLock = new SemaphoreSlim(1, 1);
-
         public void Dispose()
         {
             var temp = service;
-            try
+            Service = null;
+            if (temp != null)
             {
-                serviceLock.Wait();
-                Service = null;
+                temp.Dispose();
             }
-            finally
-            {
-                serviceLock.Release();
-            }
-            temp.Dispose();
         }
 
         /// <summary>
@@ -181,15 +171,7 @@ namespace BluetoothLEExplorer.Models
         /// <param name="service">The service this class wraps</param>
         public ObservableGattDeviceService(GattDeviceService service)
         {
-            try
-            {
-                serviceLock.Wait();
-                Service = service;
-            }
-            finally
-            {
-                serviceLock.Release();
-            }
+            Service = service;
             Name = GattServiceUuidHelper.ConvertUuidToName(service.Uuid);
             UUID = service.Uuid.ToString();
         }
@@ -370,8 +352,6 @@ namespace BluetoothLEExplorer.Models
 
             try
             {
-                await serviceLock.WaitAsync();
-
                 // Request the necessary access permissions for the service and abort
                 // if permissions are denied.
                 GattOpenStatus status = await service.OpenAsync(GattSharingMode.SharedReadAndWrite);
@@ -416,10 +396,6 @@ namespace BluetoothLEExplorer.Models
             {
                 Debug.WriteLine("getAllCharacteristics: Exception - {0}" + ex.Message);
                 Name += " - Exception: " + ex.Message;
-            }
-            finally
-            {
-                serviceLock.Release();
             }
         }
 
