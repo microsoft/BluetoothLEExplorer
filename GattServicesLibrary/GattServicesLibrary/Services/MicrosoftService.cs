@@ -5,10 +5,12 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using GattServicesLibrary;
 using GattServicesLibrary.Helpers;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Foundation.Metadata;
 using Windows.Storage.Streams;
 
 namespace GattServicesLibrary.Services
@@ -196,6 +198,12 @@ namespace GattServicesLibrary.Services
         /// <returns>Initialization Task</returns>
         public override async Task Init()
         {
+            var serviceData = new byte[] {
+                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+            };
+            ServiceData = WindowsRuntimeBuffer.Create(serviceData, 0, serviceData.Length, serviceData.Length);
+
             await CreateServiceProvider(MSFTServiceUuid);
 
             GattLocalCharacteristicResult result = null;

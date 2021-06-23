@@ -9,6 +9,9 @@ using BluetoothLEExplorer.Models;
 using BluetoothLEExplorer.Views;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Navigation;
 
 namespace BluetoothLEExplorer.ViewModels
@@ -18,6 +21,7 @@ namespace BluetoothLEExplorer.ViewModels
     /// </summary>
     public class DeviceServicesPageViewModel : ViewModelBase
     {
+
         /// <summary>
         /// App context
         /// </summary>
@@ -37,6 +41,14 @@ namespace BluetoothLEExplorer.ViewModels
             get
             {
                 return context.IsSecureConnectionSupported;
+            }
+        }
+
+        public bool IsTransactionInProgress
+        {
+            get
+            {
+                return context.IsTransactionInProgress;
             }
         }
 
@@ -115,6 +127,18 @@ namespace BluetoothLEExplorer.ViewModels
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
             }
+
+            context.PropertyChanged += Context_PropertyChanged;
+        }
+
+        public void StartTransaction()
+        {
+            context.CreateTransaction();
+        }
+
+        public void CommitTransaction()
+        {
+            context.CommitTransaction();
         }
 
         /// <summary>
@@ -129,8 +153,8 @@ namespace BluetoothLEExplorer.ViewModels
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                 Windows.UI.Core.CoreDispatcherPriority.Normal,
                 () =>
-            {
-            });
+                {
+                });
 
             await Task.CompletedTask;
         }
@@ -171,6 +195,14 @@ namespace BluetoothLEExplorer.ViewModels
             await Device.Connect();
 
             Views.Busy.SetBusy(false);
+        }
+
+        private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsTransactionInProgress")
+            {
+                this.RaisePropertyChanged("IsTransactionInProgress");
+            }
         }
     }
 }

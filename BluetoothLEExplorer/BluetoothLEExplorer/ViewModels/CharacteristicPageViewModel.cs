@@ -448,6 +448,14 @@ namespace BluetoothLEExplorer.ViewModels
             }
         }
 
+        public bool IsTransactionInProgress
+        {
+            get
+            {
+                return context.IsTransactionInProgress;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CharacteristicPageViewModel" /> class.
         /// </summary>
@@ -466,6 +474,16 @@ namespace BluetoothLEExplorer.ViewModels
             if (Characteristic.DisplayType == ObservableGattCharacteristics.DisplayTypes.Unsupported)
             {
                 DisplayPresentError = Windows.UI.Xaml.Visibility.Visible;
+            }
+
+            context.PropertyChanged += Context_PropertyChanged;
+        }
+
+        private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsTransactionInProgress")
+            {
+                this.RaisePropertyChanged("IsTransactionInProgress");
             }
         }
 
@@ -663,6 +681,55 @@ namespace BluetoothLEExplorer.ViewModels
             }
         }
 
+        public async void WriteTransaction()
+        {
+            if (!String.IsNullOrEmpty(ValueToWrite))
+            {
+                IBuffer writeBuffer = null;
+
+                if (WriteType == WriteTypes.Decimal)
+                {
+                    DataWriter writer = new DataWriter();
+                    writer.ByteOrder = ByteOrder.LittleEndian;
+                    writer.WriteInt32(Int32.Parse(ValueToWrite));
+                    writeBuffer = writer.DetachBuffer();
+                }
+                else if (WriteType == WriteTypes.Hex)
+                {
+                    try
+                    {
+                        // pad the value if we've received odd number of bytes
+                        if (ValueToWrite.Length % 2 == 1)
+                        {
+                            writeBuffer = GattConvert.ToIBufferFromHexString("0" + ValueToWrite);
+                        }
+                        else
+                        {
+                            writeBuffer = GattConvert.ToIBufferFromHexString(ValueToWrite);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageDialog dialog = new MessageDialog(ex.Message, "Error");
+                        await dialog.ShowAsync();
+                        return;
+                    }
+
+                }
+                else if (WriteType == WriteTypes.UTF8)
+                {
+                    writeBuffer = CryptographicBuffer.ConvertStringToBinary(ValueToWrite,
+                    BinaryStringEncoding.Utf8);
+                }
+
+                context.WriteTransaction(Characteristic.Characteristic, writeBuffer);
+            }
+            else
+            {
+                NotifyUser.Insert(0, "No data to write to device");
+            }
+        }
+
         /// <summary>
         /// Navigate to page
         /// </summary>
@@ -695,7 +762,7 @@ namespace BluetoothLEExplorer.ViewModels
                         continue;
                     }
 
-                    if (BluetoothLEExplorer.Services.GattUuidHelpers.GattServiceUuidHelper.IsReadOnly(Characteristic.Characteristic.Service.Uuid) &&
+                    if (GattServiceUuidHelper.IsReadOnly(Characteristic.Characteristic.Service.Uuid) &&
                         (p == GattCharacteristicProperties.Write || p == GattCharacteristicProperties.WriteWithoutResponse))
                     {
                         continue;

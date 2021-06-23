@@ -13,17 +13,11 @@ namespace BluetoothLEExplorer.Views
     public sealed partial class SettingsPage : Page
     {
         /// <summary>
-        /// Serialization service
-        /// </summary>
-        private Template10.Services.SerializationService.ISerializationService serializationService;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SettingsPage" /> class.
         /// </summary>
         public SettingsPage()
         {
             InitializeComponent();
-            serializationService = Template10.Services.SerializationService.SerializationService.Json;
         }
 
         /// <summary>
@@ -32,8 +26,6 @@ namespace BluetoothLEExplorer.Views
         /// <param name="e"></param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            var index = int.Parse(serializationService.Deserialize(e.Parameter?.ToString()).ToString());
-            MyPivot.SelectedIndex = index;
         }
     }
 }

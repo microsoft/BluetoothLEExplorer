@@ -160,6 +160,25 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        private ushort attributeHandle;
+
+        public ushort AttributeHandle
+        {
+            get
+            {
+                return attributeHandle;
+            }
+
+            set
+            {
+                if (attributeHandle != value)
+                {
+                    attributeHandle = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("AttributeHandle"));
+                }
+            }
+        }
+
         /// <summary>
         /// Determines if the SelectedCharacteristic_PropertyChanged has been added
         /// </summary>
@@ -178,6 +197,28 @@ namespace BluetoothLEExplorer.Models
 
         public async Task Initialize()
         {
+            await GetAllServiceAttributes();
+        }
+
+        private async Task GetAllServiceAttributes()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ObservableGattDeviceService::GetAllServiceAttributes: ");
+            sb.Append(Name);
+
+            // Request the necessary access permissions for the service and abort
+            // if permissions are denied.
+            GattOpenStatus status = await Service.OpenAsync(GattSharingMode.SharedReadAndWrite);
+            if (status != GattOpenStatus.Success && status != GattOpenStatus.AlreadyOpened)
+            {
+                string error = " - Error: " + status.ToString();
+                Name += error;
+                sb.Append(error);
+                Debug.WriteLine(sb.ToString());
+                return;
+            }
+
+            await GetAllIncludedServices();
             await GetAllCharacteristics();
         }
 
@@ -213,7 +254,7 @@ namespace BluetoothLEExplorer.Models
             {
                 if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
                 {
-                    if(!await gattchar.SetNotify())
+                    if (!await gattchar.SetNotify())
                     {
                         success = false;
                     }
@@ -232,7 +273,7 @@ namespace BluetoothLEExplorer.Models
             {
                 if (gattchar.Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
                 {
-                    if(!await gattchar.StopNotify())
+                    if (!await gattchar.StopNotify())
                     {
                         success = false;
                     }
@@ -341,6 +382,41 @@ namespace BluetoothLEExplorer.Models
             return true;
         }
 
+        private async Task GetAllIncludedServices()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ObservableGattDeviceService::getAllIncludedServices: ");
+            sb.Append(name);
+
+            try
+            {
+                var result = await service.GetIncludedServicesAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+                if (result.Status == GattCommunicationStatus.Success)
+                {
+                    sb.Append(" - getAllIncludedServices found ");
+                    sb.Append(result.Services.Count());
+                    sb.Append(" services");
+                    Debug.WriteLine(sb);
+                }
+                else if (result.Status == GattCommunicationStatus.Unreachable)
+                {
+                    sb.Append(" - getAllIncludedServices failed with Unreachable");
+                    Debug.WriteLine(sb.ToString());
+                }
+                else if (result.Status == GattCommunicationStatus.ProtocolError)
+                {
+                    sb.Append(" - getAllIncludedServices failed with Unreachable");
+                    Debug.WriteLine(sb.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("getAllIncludedServices: Exception - {0}" + ex.Message);
+                Name += " - Exception: " + ex.Message;
+            }
+        }
+
         /// <summary>
         /// Gets all the characteristics of this service
         /// </summary>
@@ -362,11 +438,10 @@ namespace BluetoothLEExplorer.Models
                     Name += error;
                     sb.Append(error);
                     Debug.WriteLine(sb.ToString());
-
                     return;
                 }
 
-                GattCharacteristicsResult result = await service.GetCharacteristicsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+                var result = await service.GetCharacteristicsAsync(Services.SettingsServices.SettingsService.Instance.UseCaching ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {

@@ -27,7 +27,7 @@ namespace BluetoothLEExplorer.Views
         }
 
         /// <summary>
-        /// Updates the view model with the just selected characteristic 
+        /// Updates the view model with the just selected characteristic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -36,6 +36,11 @@ namespace BluetoothLEExplorer.Views
             ViewModel.SelectedCharacteristic = (ObservableGattCharacteristics)e.ClickedItem;
         }
 
+        /// <summary>
+        /// Updates the view model with the just selected service
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ServicesListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             ViewModel.SelectedService = (ObservableGattDeviceService)e.ClickedItem;

@@ -320,7 +320,6 @@ namespace BluetoothLEExplorer.Models
         {
             Characteristic = characteristic;
             Parent = parent;
-
             Name = GattCharacteristicUuidHelper.ConvertUuidToName(characteristic.Uuid);
             UUID = characteristic.Uuid.ToString();
         }

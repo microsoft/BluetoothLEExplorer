@@ -1,4 +1,4 @@
-<Page x:Class="BluetoothLEExplorer.Views.ServicePage"
+﻿<Page x:Class="BluetoothLEExplorer.Views.AdvertisementPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
@@ -9,14 +9,15 @@
       xmlns:local="using:BluetoothLEExplorer.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:converters="using:Template10.Converters"
+      xmlns:myconverters="using:BluetoothLEExplorer.Services.Converters"
       xmlns:vm="using:BluetoothLEExplorer.ViewModels" x:Name="ThisPage"
-      xmlns:models="using:BluetoothLEExplorer.Models"
+      xmlns:models="using:BluetoothLEExplorer.Models" 
       mc:Ignorable="d">
 
     <Page.DataContext>
-        <vm:ServicePageViewModel x:Name="ViewModel" />
+        <vm:AdvertisementPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
-
+    
     <Page.Resources>
         <converters:ValueWhenConverter x:Key="VisibleWhenBlankConverter" When="">
             <converters:ValueWhenConverter.Value>
@@ -43,7 +44,6 @@
     </Page.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
                 <VisualState x:Name="VisualStateNarrow">
@@ -77,68 +77,86 @@
         <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="Service Page" />
+                             RelativePanel.AlignTopWithPanel="True" Text="Selected Advertisement" />
 
         <!--  content  -->
-
         <Grid RelativePanel.Below="pageHeader" Padding="10" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"  />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*"  />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
                 <TextBlock>
-                    <Run Text="BT Address: " />
-                    <Run Text="{x:Bind ViewModel.SelectedDevice.BluetoothAddressAsString, Mode=OneWay}"/>
+                    <Run Text="Address: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.AddressAsString, Mode=OneTime}"/>
                 </TextBlock>
                 <TextBlock>
-                    <Run Text="Service Name:" />
-                    <Run Text="{x:Bind ViewModel.SelectedService.Name, Mode=OneWay}" />
+                    <Run Text="Address Type: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.AddressType, Mode=OneTime}" />
                 </TextBlock>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Visibility="{x:Bind ViewModel.ServiceCanNotify, Converter={StaticResource VisibleWhenTrueConverter}}">
-                    <ToggleSwitch x:Name="NotifySwitch" Header="Notify"
-                        OffContent="Off" OnContent="On" IsOn="{x:Bind ViewModel.Notify, Mode=TwoWay}" />
-                    <ProgressRing Visibility="{x:Bind ViewModel.NotifyProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}"
-                        IsActive="{x:Bind ViewModel.NotifyProgress, Mode=OneWay}" />
-                    <TextBlock Text="Error setting notification" Foreground="Red"
-                        Margin="-60, 30, 0, 0"
-                        Visibility="{x:Bind ViewModel.NotifyError, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Visibility="{x:Bind ViewModel.ServiceCanIndicate, Converter={StaticResource VisibleWhenTrueConverter}}">
-                    <ToggleSwitch x:Name="IndicateSwitch" Header="Indicate"
-                        OffContent="Off" OnContent="On" IsOn="{x:Bind ViewModel.Indicate, Mode=TwoWay}"/>
-                    <ProgressRing Visibility="{x:Bind ViewModel.IndicateProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}"
-                        IsActive="{x:Bind ViewModel.IndicateProgress, Mode=OneWay}"/>
-                    <TextBlock x:Name="IndicateError" Text="Error setting notification" Foreground="Red"
-                        Margin="-60, 30, 0, 0"
-                        Visibility="{x:Bind ViewModel.IndicateError, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" />
-                </StackPanel>
+                <TextBlock>
+                    <Run Text="Advertisement Type: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Type, Mode=OneTime}" />
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Rssi: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Rssi, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="TxPower: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.TxPower, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Anonymous: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Anonymous, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Connectable: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Connectable, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Directed: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Directed, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Scannable: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.Scannable, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Scan Response: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.ScanResponse, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Section Count: " FontWeight="Bold"/>
+                    <Run Text="{x:Bind ViewModel.Advertisement.DataSections.Count, Mode=OneTime}"/>
+                </TextBlock>
             </StackPanel>
-
-            <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" >
-                <ListView x:Name="CharacteristicsListView"
-                                          IsItemClickEnabled="True"
-                                          SelectionMode="Single"
-                                          ItemsSource="{x:Bind ViewModel.SelectedService.Characteristics}"
-                                          ItemClick="CharacteristicsListView_ItemClick" >
-                    <ListView.ItemTemplate >
-                        <DataTemplate x:DataType="models:ObservableGattCharacteristics" >
-                            <TextBlock TextWrapping="WrapWholeWords">
-                                <Run x:Name="CharacteristicText" Text="Characteristic Name:" />
-                                <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" />
-                                <Run Text=" - User Description: " />
-                                <Run x:Name="CharacteristicUserDescription" Text="{x:Bind Characteristic.UserDescription, Mode=OneWay}" />
-                                <Run Text=" - " />
-                                <Run x:Name="CharacteristicHandleText" Text="Handle: " />
-                                <Run Text="{x:Bind Characteristic.AttributeHandle, Mode=OneWay}" FontWeight="Bold" />
-                                <Run Text=" - " />
-                                <Run x:Name="CharValueText" Text="Value: " />
-                                <Run Text="{x:Bind Value, Mode=OneWay}" FontWeight="Bold" />
-                            </TextBlock>
+            <ScrollViewer Grid.Row="2" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ItemsControl 
+                    x:Name="DataSectionsListView"
+                    ItemsSource="{x:Bind ViewModel.Advertisement.DataSections, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:ObservableBluetoothLEAdvertisementSection" >
+                            <StackPanel Margin="0,0,0,15">
+                                <TextBlock>
+                                    <Run Text="Section Type: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind TypeAsDisplayString}" />
+                                    <Run Text=" (" />
+                                    <Run Text="{x:Bind TypeAsString}" />
+                                    <Run Text=")" />
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Section Data: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind DataAsDisplayString}" />
+                                    <Run Text=" ("/>
+                                    <Run Text="{x:Bind DataAsString}" />
+                                    <Run Text=")" />
+                                </TextBlock>
+                            </StackPanel>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
     </RelativePanel>

@@ -116,7 +116,6 @@
         </VisualStateManager.VisualStateGroups>
 
 
-
         <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True" Text="Discover">

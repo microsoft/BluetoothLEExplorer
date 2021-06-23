@@ -1,0 +1,210 @@
+﻿<Page x:Class="BluetoothLEExplorer.Views.AdvertisementMonitorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:BluetoothLEExplorer.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:myconverters="using:BluetoothLEExplorer.Services.Converters"
+      xmlns:vm="using:BluetoothLEExplorer.ViewModels"
+      xmlns:models="using:BluetoothLEExplorer.Models"
+      mc:Ignorable="d">
+
+    <Page.DataContext>
+        <vm:AdvertisementMonitorPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <converters:ValueWhenConverter x:Key="VisibleWhenTrueConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="VisibleWhenFalseConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>False</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="EnumerationBoolToStringConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>True</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <x:String>Stop</x:String>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <x:String>Start</x:String>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="CollapsedWhenZero">
+            <converters:ValueWhenConverter.When>
+                <x:Int32>0</x:Int32>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <converters:ValueWhenConverter x:Key="CollapsedWhenNegOne">
+            <converters:ValueWhenConverter.When>
+                <x:Int32>-1</x:Int32>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
+        <myconverters:ScanningModeToBooleanConverter x:Key="ScanningModeToBooleanConverter" />
+        <myconverters:DataFormatTypeToBooleanConverter x:Key="DataFormatTypeToBooleanConverter" />
+    </Page.Resources>
+
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Advertisement Monitor">
+
+            <!--  secondary commands  -->
+            <controls:PageHeader.SecondaryCommands>
+                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
+                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+            </controls:PageHeader.SecondaryCommands>
+
+        </controls:PageHeader>
+
+        <Grid RelativePanel.Below="pageHeader" Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"  />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                    <RadioButton x:Name="ScanningModePassive" GroupName="ScanningMode" Content="Passive" IsChecked="{Binding ScanningMode, Mode=TwoWay, Converter={StaticResource ScanningModeToBooleanConverter}, ConverterParameter=Passive}"/>
+                    <RadioButton x:Name="ScanningModeActive" GroupName="ScanningMode" Content="Active" IsChecked="{Binding ScanningMode, Mode=TwoWay, Converter={StaticResource ScanningModeToBooleanConverter}, ConverterParameter=Active}"/>
+                    <RadioButton x:Name="ScanningModeNone" GroupName="ScanningMode" Content="None" IsChecked="{Binding ScanningMode, Mode=TwoWay, Converter={StaticResource ScanningModeToBooleanConverter}, ConverterParameter=None}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                    <TextBlock Text="Data Section Type: " VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox
+                        x:Name="SelectedKnownDataSection"
+                        Margin="5,0,5,0"
+                        ItemsSource="{x:Bind ViewModel.KnownDataSectionFilters}"
+                        DisplayMemberPath="Name"
+                        SelectedItem="{x:Bind ViewModel.SelectedDataSectionFilter, Mode=TwoWay}"
+                        />
+                </StackPanel>
+                <StackPanel x:Name="DataSectionRaw" Visibility="{x:Bind Converter={StaticResource VisibleWhenTrueConverter}, Path=ViewModel.ShowDataSectionRawPane, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                        <TextBlock Text="Data Section Data: " VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Text="{x:Bind ViewModel.SelectedDataSectionFilter.SectionDataString, Mode=TwoWay}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                        <RadioButton x:Name="DataFormatHexArray" GroupName="DataFormat" Content="Hex" IsChecked="{Binding SelectedDataSectionFilter.SectionDataFormat, Mode=TwoWay, Converter={StaticResource DataFormatTypeToBooleanConverter}, ConverterParameter=Hex}"/>
+                        <RadioButton x:Name="DataFormatString" GroupName="DataFormat" Content="String" IsChecked="{Binding SelectedDataSectionFilter.SectionDataFormat, Mode=TwoWay, Converter={StaticResource DataFormatTypeToBooleanConverter}, ConverterParameter=String}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                    <Button Content="Apply Filter" Click="{x:Bind ViewModel.ApplyFilter}" Margin="0,0,5,0" />
+                    <Button Content="Clear Filter" Click="{x:Bind ViewModel.ClearFilter}" Margin="5,0,5,0" />
+                </StackPanel>
+                <Button Content="{x:Bind ViewModel.IsWatcherStarted, Mode=OneWay, Converter={StaticResource EnumerationBoolToStringConverter}}" Margin="0,5" Click="{x:Bind ViewModel.ToggleWatcher}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5">
+                    <TextBlock Text="Quick Content Filter: " VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Text="{x:Bind ViewModel.ContentFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,5,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+                <ListView
+                    x:Name="AdvertisementsListView"
+                    IsItemClickEnabled="True"
+                    SelectionMode="Single"
+                    ItemsSource="{x:Bind ViewModel.AdvertisementsView, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedAdvertisement, Mode=TwoWay}"
+                    Margin="0,20,0,0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ObservableBluetoothLEAdvertisement">
+                            <StackPanel Margin="0,10">
+                                <TextBlock>
+                                    <Run Text="Address: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind AddressAsString, Mode=OneTime}" />
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Address Type: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind AddressType, Mode=OneTime}" />
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Timestamp: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind Timestamp, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Event Type: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind Type, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock>
+                                    <Run Text="Payload: " FontWeight="Bold"/>
+                                    <Run Text="{x:Bind PayloadAsString, Mode=OneTime}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+        </Grid>
+    </RelativePanel>
+</Page>
