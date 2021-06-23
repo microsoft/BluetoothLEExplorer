@@ -13,6 +13,7 @@ using Template10.Mvvm;
 using Template10.Services.NavigationService;
 using Windows.UI.Xaml.Navigation;
 using SortedObservableCollection;
+using Windows.Devices.Bluetooth.Advertisement;
 
 namespace BluetoothLEExplorer.ViewModels
 {

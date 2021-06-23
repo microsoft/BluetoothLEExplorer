@@ -7,6 +7,7 @@ using BluetoothLEExplorer.Models;
 using GattServicesLibrary;
 using Template10.Mvvm;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Storage.Streams;
 
 namespace BluetoothLEExplorer.ViewModels
 {
@@ -78,6 +79,23 @@ namespace BluetoothLEExplorer.ViewModels
             }
         }
 
+        public bool IncludeServiceData
+        {
+            get
+            {
+                return service.IncludeServiceData;
+            }
+
+            set
+            {
+                if (value != service.IncludeServiceData)
+                {
+                    service.IncludeServiceData = value;
+                    RaisePropertyChanged("IncludeServiceData");
+                }
+            }
+        }
+
         /// <summary>
         /// Source for <see cref="IsPublishing"/> property
         /// </summary>
@@ -95,12 +113,11 @@ namespace BluetoothLEExplorer.ViewModels
 
             set
             {
-                if(value != isPublishing)
+                if (value != isPublishing)
                 {
-                    if(value == true)
+                    if (value == true)
                     {
                         Start();
-                        
                     }
                     if(value == false)
                     {

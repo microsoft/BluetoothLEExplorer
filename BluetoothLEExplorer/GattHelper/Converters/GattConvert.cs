@@ -12,18 +12,25 @@ namespace GattHelper.Converters
     {
         public static IBuffer ToIBufferFromHexString(string data)
         {
+            DataWriter writer = new DataWriter();
             data = data.Replace("-", "");
 
-            int NumberChars = data.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-
-            for (int i = 0; i < NumberChars; i += 2)
+            if (data.Length > 0)
             {
-                bytes[i / 2] = Convert.ToByte(data.Substring(i, 2), 16);
-            }
+                if (data.Length % 2 != 0)
+                {
+                    data = "0" + data;
+                }
 
-            DataWriter writer = new DataWriter();
-            writer.WriteBytes(bytes);
+                int NumberChars = data.Length;
+                byte[] bytes = new byte[NumberChars / 2];
+
+                for (int i = 0; i < NumberChars; i += 2)
+                {
+                    bytes[i / 2] = Convert.ToByte(data.Substring(i, 2), 16);
+                }
+                writer.WriteBytes(bytes);
+            }
             return writer.DetachBuffer();
         }
 

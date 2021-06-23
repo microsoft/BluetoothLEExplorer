@@ -18,6 +18,9 @@ using Windows.UI.Popups;
 using Windows.Foundation.Metadata;
 
 using System.Threading;
+using Template10.Common;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Storage.Streams;
 
 namespace BluetoothLEExplorer.Models
 {
@@ -46,6 +49,10 @@ namespace BluetoothLEExplorer.Models
         /// </summary>
         public DisposableObservableCollection<ObservableBluetoothLEDevice> BluetoothLEDevices { get; set; } = new DisposableObservableCollection<ObservableBluetoothLEDevice>();
 
+        private SemaphoreSlim AdvertisementsLock = new SemaphoreSlim(1, 1);
+
+        public ObservableDictionary<String, ObservableBluetoothLEAdvertisement> Advertisements { get; set; } = new ObservableDictionary<String, ObservableBluetoothLEAdvertisement>();
+
         /// <summary>
         /// Gets or sets the selected bluetooth device
         /// </summary>
@@ -55,6 +62,8 @@ namespace BluetoothLEExplorer.Models
         /// Gets or sets the selected device service
         /// </summary>
         public ObservableGattDeviceService SelectedService { get; set; } = null;
+
+        public ObservableBluetoothLEAdvertisement SelectedAdvertisement { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the selected characteristic
@@ -90,6 +99,8 @@ namespace BluetoothLEExplorer.Models
         /// Advertisement watcher used to find bluetooth devices
         /// </summary>
         private BluetoothLEAdvertisementWatcher advertisementWatcher;
+
+        private GattReliableWriteTransaction transaction;
 
         /// <summary>
         /// We need to cache all DeviceInformation objects we get as they may
@@ -168,6 +179,25 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        private bool advertisementWatcherStarted = false;
+
+        public bool AdvertisementWatcherStarted
+        {
+            get
+            {
+                return advertisementWatcherStarted;
+            }
+
+            private set
+            {
+                if (advertisementWatcherStarted != value)
+                {
+                    advertisementWatcherStarted = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("AdvertisementWatcherStarted"));
+                }
+            }
+        }
+
         /// <summary>
         /// Source for <see cref="IsPeripheralRoleSupported"/>
         /// </summary>
@@ -233,6 +263,30 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        private bool isTransactionInProgress = false;
+
+        public bool IsTransactionInProgress
+        {
+            get
+            {
+                return isTransactionInProgress;
+            }
+
+            private set
+            {
+                if (isTransactionInProgress != value)
+                {
+                    isTransactionInProgress = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("IsTransactionInProgress"));
+                }
+            }
+        }
+
+        public String AdvertisementContentFilter { get; set; } = "";
+
+        public ObservableCollection<ObservableBluetoothLEBeacon> Beacons { get; set; } = new ObservableCollection<ObservableBluetoothLEBeacon>();
+        public ObservableBluetoothLEBeacon SelectedBeacon { get; set; } = null;
+
         /// <summary>
         /// Prevents a default instance of the <see cref="GattSampleContext" /> class from being created.
         /// </summary>
@@ -277,10 +331,9 @@ namespace BluetoothLEExplorer.Models
 
             devNodeWatcher.Start();
 
-            return;
+            advertisementWatcher = new BluetoothLEAdvertisementWatcher();
+            advertisementWatcher.Received += AdvertisementWatcher_Received;
         }
-
-
 
         private async void DevNodeWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
@@ -434,15 +487,14 @@ namespace BluetoothLEExplorer.Models
             deviceWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
             deviceWatcher.Stopped += DeviceWatcher_Stopped;
 
-            advertisementWatcher = new BluetoothLEAdvertisementWatcher();
-            advertisementWatcher.Received += AdvertisementWatcher_Received;
-
             ClearAllDevices();
 
             deviceWatcher.Start();
-            advertisementWatcher.Start();
             IsEnumerating = true;
             EnumerationFinished = false;
+
+            UpdateAdvertisementFilter(new BluetoothLEAdvertisementFilter());
+            StartAdvertisementWatcher(BluetoothLEScanningMode.Active);
         }
 
         /// <summary>
@@ -450,6 +502,8 @@ namespace BluetoothLEExplorer.Models
         /// </summary>
         public void StopEnumeration()
         {
+            StopAdvertisementWatcher();
+
             if (deviceWatcher != null)
             {
                 // Unregister the event handlers.
@@ -459,17 +513,71 @@ namespace BluetoothLEExplorer.Models
                 deviceWatcher.EnumerationCompleted -= DeviceWatcher_EnumerationCompleted;
                 deviceWatcher.Stopped -= DeviceWatcher_Stopped;
 
-                advertisementWatcher.Received -= AdvertisementWatcher_Received;
-
                 // Stop the watchers
                 deviceWatcher.Stop();
                 deviceWatcher = null;
 
-                advertisementWatcher.Stop();
-                advertisementWatcher = null;
                 IsEnumerating = false;
                 EnumerationFinished = false;
             }
+        }
+
+        public void StartAdvertisementWatcher(BluetoothLEScanningMode scanningMode)
+        {
+            if (!AdvertisementWatcherStarted)
+            {
+                Advertisements.Clear();
+                advertisementWatcher.ScanningMode = scanningMode;
+                if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 10))
+                {
+                    advertisementWatcher.AllowExtendedAdvertisements = true;
+                }
+                advertisementWatcher.Start();
+                AdvertisementWatcherStarted = true;
+            }
+        }
+
+        public void StopAdvertisementWatcher()
+        {
+            if (AdvertisementWatcherStarted)
+            {
+                advertisementWatcher.Stop();
+                AdvertisementWatcherStarted = false;
+            }
+        }
+
+        public void UpdateAdvertisementFilter(BluetoothLEAdvertisementFilter filter)
+        {
+            advertisementWatcher.AdvertisementFilter = filter;
+            if (AdvertisementWatcherStarted)
+            {
+                advertisementWatcher.Stop();
+                Advertisements.Clear();
+                advertisementWatcher.Start();
+            }
+        }
+
+        public void CreateTransaction()
+        {
+            transaction = new GattReliableWriteTransaction();
+            IsTransactionInProgress = true;
+        }
+
+        public async void CommitTransaction()
+        {
+            var result = await transaction.CommitWithResultAsync();
+            if (result.Status == GattCommunicationStatus.Success)
+            {
+
+            }
+
+            transaction = null;
+            IsTransactionInProgress = false;
+        }
+
+        public void WriteTransaction(GattCharacteristic characteristic, IBuffer value)
+        {
+            transaction.WriteValue(characteristic, value);
         }
 
         /// <summary>
@@ -481,9 +589,9 @@ namespace BluetoothLEExplorer.Models
         {
             try
             {
+                await AddAdvertisementToList(args);
 
                 await BluetoothLEDevicesLock.WaitAsync();
-
                 foreach (ObservableBluetoothLEDevice d in BluetoothLEDevices)
                 {
                     if (d.BluetoothAddressAsUlong == args.BluetoothAddress)
@@ -492,14 +600,7 @@ namespace BluetoothLEExplorer.Models
                             Windows.UI.Core.CoreDispatcherPriority.Normal,
                             () =>
                             {
-                                if (args.Advertisement.ServiceUuids != null)
-                                {
-                                    d.ServiceCount = args.Advertisement.ServiceUuids.Count();
-                                }
-                                else
-                                {
-                                    Debug.WriteLine("Observed ADVs without ServicesUuids at UPF61");
-                                }
+                                d.Update(args);
                             });
                     }
                 }
@@ -552,7 +653,7 @@ namespace BluetoothLEExplorer.Models
                 {
                     ObservableBluetoothLEDevice dev;
 
-                    // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
+                    // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
                     try
                     {
                         await BluetoothLEDevicesLock.WaitAsync();
@@ -624,7 +725,7 @@ namespace BluetoothLEExplorer.Models
 
                     try
                     {
-                        // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
+                        // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
                         await BluetoothLEDevicesLock.WaitAsync();
 
                         // Find the corresponding DeviceInformation in the collection and remove it.
@@ -693,10 +794,10 @@ namespace BluetoothLEExplorer.Models
                     (bool)dev.DeviceInfo.Properties["System.Devices.Aep.IsConnected"])) ||
                 ((dev.DeviceInfo.Properties.Keys.Contains("System.Devices.Aep.IsPaired") &&
                     (bool)dev.DeviceInfo.Properties["System.Devices.Aep.IsPaired"]));
-
+                
             if (shouldDisplay)
             {
-                // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices
+                // Need to lock as another DeviceWatcher might be modifying BluetoothLEDevices 
                 try
                 {
                     await BluetoothLEDevicesLock.WaitAsync();
@@ -728,6 +829,27 @@ namespace BluetoothLEExplorer.Models
                 {
                     BluetoothLEDevicesLock.Release();
                 }
+            }
+        }
+
+        private async Task AddAdvertisementToList(BluetoothLEAdvertisementReceivedEventArgs advertisementEvent)
+        {
+            try
+            {
+                await AdvertisementsLock.WaitAsync();
+
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                    Windows.UI.Core.CoreDispatcherPriority.Normal,
+                    () =>
+                    {
+                        var advertisement = new ObservableBluetoothLEAdvertisement(advertisementEvent);
+
+                        Advertisements[advertisement.InternalHashString] = advertisement;
+                    });
+            }
+            finally
+            {
+                AdvertisementsLock.Release();
             }
         }
 

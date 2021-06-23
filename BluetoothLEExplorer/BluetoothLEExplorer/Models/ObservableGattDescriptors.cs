@@ -166,13 +166,12 @@ namespace BluetoothLEExplorer.Models
         {
             Descriptor = descriptor;
             Parent = parent;
+            Name = GattDescriptorUuidHelper.ConvertUuidToName(descriptor.Uuid);
+            UUID = descriptor.Uuid.ToString();
         }
 
         public async Task Initialize()
         {
-            Name = GattDescriptorUuidHelper.ConvertUuidToName(descriptor.Uuid);
-            UUID = descriptor.Uuid.ToString();
-
             await ReadValueAsync();
             PropertyChanged += ObservableGattDescriptors_PropertyChanged;
         }

@@ -1,12 +1,9 @@
-﻿// <copyright file="ObservableBluetoothLEDevice.cs" company="Microsoft Corporation">
+﻿// <copyright file="DisposableObservableCollection.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //----------------------------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
 namespace BluetoothLEExplorer.Models

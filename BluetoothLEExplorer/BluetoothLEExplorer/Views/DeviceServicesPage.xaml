@@ -8,6 +8,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:BluetoothLEExplorer.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:myconverters="using:BluetoothLEExplorer.Services.Converters"
       xmlns:converters="using:Template10.Converters"
       xmlns:vm="using:BluetoothLEExplorer.ViewModels" x:Name="ThisPage"
       xmlns:models="using:BluetoothLEExplorer.Models"
@@ -39,7 +40,21 @@
             </converters:ValueWhenConverter.Otherwise>
         </converters:ValueWhenConverter>
 
+        <converters:ValueWhenConverter x:Key="VisibleWhenFalseConverter">
+            <converters:ValueWhenConverter.When>
+                <x:Boolean>False</x:Boolean>
+            </converters:ValueWhenConverter.When>
+            <converters:ValueWhenConverter.Value>
+                <Visibility>Visible</Visibility>
+            </converters:ValueWhenConverter.Value>
+            <converters:ValueWhenConverter.Otherwise>
+                <Visibility>Collapsed</Visibility>
+            </converters:ValueWhenConverter.Otherwise>
+        </converters:ValueWhenConverter>
+
         <local:BackgroundColorConverter x:Key="BackgroundColorConverter"/>
+
+        <myconverters:StringFormatConverter x:Key="StringFormatConverter" />
     </Page.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -97,6 +112,10 @@
                     <Run Text="Number of Services:" />
                     <Run Text="{x:Bind ViewModel.Device.Services.Count, Mode=OneWay}" />
                 </TextBlock>
+                <TextBlock>
+                    <Run Text="Number of Advertisement Services:" />
+                    <Run Text="{x:Bind ViewModel.Device.AdvertisementServiceCount, Mode=OneWay}" />
+                </TextBlock>
                 <TextBlock Visibility="{x:Bind ViewModel.IsSecureConnectionSupported, Converter={StaticResource VisibleWhenTrueConverter}}" >
                     <Run Text="BT 4.2 Secure Connection:" />
                     <Run Text="{x:Bind ViewModel.Device.IsSecureConnection, Mode=OneWay}" />
@@ -107,12 +126,11 @@
                     <Run Text="{x:Bind ViewModel.Device.IsConnected, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
-                <Button Name="RefreshButton" Click="{x:Bind ViewModel.Refresh}">
-                    Refresh
-                </Button>
+                <Button Name="RefreshButton" Click="{x:Bind ViewModel.Refresh}"  Margin="0,5">Refresh</Button>
+                <Button Name="StartTransactionButton" Margin="0,5" Click="{x:Bind ViewModel.StartTransaction}" Visibility="{x:Bind ViewModel.IsTransactionInProgress, Converter={StaticResource VisibleWhenFalseConverter}, Mode=OneWay}">Start Transaction</Button>
+                <Button Name="CommitTransactionButton" Margin="0,5" Click="{x:Bind ViewModel.CommitTransaction}" Visibility="{x:Bind ViewModel.IsTransactionInProgress, Converter={StaticResource VisibleWhenTrueConverter}, Mode=OneWay}">Commit Transaction</Button>
             </StackPanel>
-
-            <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+            <ScrollViewer Grid.Row="1" Margin="0,10,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListView  x:Name="ServicesListView"
                            IsItemClickEnabled="True"
                            SelectionMode="Single"
@@ -131,10 +149,10 @@
                                     <Run Text="{x:Bind UUID}" FontWeight="Bold" />
                                 </TextBlock>
                                 <ListView x:Name="CharacteristicsListView"
-                                          IsItemClickEnabled="True"
-                                          SelectionMode="Single"
-                                          ItemsSource="{x:Bind Characteristics}"
-                                          ItemClick="CharacteristicsListView_ItemClick" >
+                                            IsItemClickEnabled="True"
+                                            SelectionMode="Single"
+                                            ItemsSource="{x:Bind Characteristics}"
+                                            ItemClick="CharacteristicsListView_ItemClick" >
                                     <ListView.ItemTemplate >
                                         <DataTemplate x:DataType="models:ObservableGattCharacteristics" >
                                             <TextBlock TextWrapping="WrapWholeWords">
@@ -145,6 +163,8 @@
                                                 <Run Text=" - " />
                                                 <Run x:Name="CharacteristicHandleText" Text="Handle: " />
                                                 <Run Text="{x:Bind Characteristic.AttributeHandle, Mode=OneWay}" FontWeight="Bold" />
+                                                <Run Text=" - " />
+                                                <Run Text="{x:Bind Characteristic.AttributeHandle, Mode=OneWay,Converter={StaticResource StringFormatConverter}, ConverterParameter='0x{0:X8}'}" FontWeight="Bold" />
                                                 <Run Text=" - " />
                                                 <Run x:Name="CharValueText" Text="Value: " />
                                                 <Run Text="{x:Bind Value, Mode=OneWay}" FontWeight="Bold" />

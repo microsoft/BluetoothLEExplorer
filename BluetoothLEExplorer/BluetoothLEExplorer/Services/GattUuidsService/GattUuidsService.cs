@@ -42,7 +42,7 @@ namespace BluetoothLEExplorer.Services.GattUuidHelpers
             {
                 return true;
             }
-            
+
             return false;
         }
     }

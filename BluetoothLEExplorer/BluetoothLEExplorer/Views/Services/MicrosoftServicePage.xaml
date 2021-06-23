@@ -135,7 +135,19 @@
 
         <StackPanel x:Name="SwitchHeader" RelativePanel.Below="pageHeader" Padding="10">
             <TextBlock Text="{x:Bind ViewModel.Service.Name}" />
-            <ToggleSwitch x:Name="Switch" RelativePanel.Below="pageHeader" Header="Discoverable and Connectable" IsOn="{x:Bind ViewModel.ServiceVM.IsPublishing, Mode=TwoWay}" Margin="5"/>
+            <ToggleSwitch x:Name="ConnectableSwitch" RelativePanel.Below="pageHeader" Header="Advertise as connectable."
+                              IsOn="{x:Bind ViewModel.ServiceVM.IsConnectable, Mode=TwoWay}" Margin="5" />
+            <ToggleSwitch x:Name="DiscoverableSwitch" RelativePanel.Below="ConnectableSwitch" Header="Include service in advertisement."
+                              IsOn="{x:Bind ViewModel.ServiceVM.IsDiscoverable, Mode=TwoWay}" Margin="5" />
+            <ToggleSwitch
+                x:Name="ServiceDataSwitch"
+                RelativePanel.Below="DiscoverableSwitch"
+                Header="Include service data in advertisement."
+                IsOn="{x:Bind ViewModel.ServiceVM.IncludeServiceData, Mode=TwoWay}"
+                Margin="5"/>
+            
+            <ToggleSwitch x:Name="PublishingSwitch" RelativePanel.Below="DiscoverableSwitch" Header="Publish advertisement."
+                              IsOn="{x:Bind ViewModel.ServiceVM.IsPublishing, Mode=TwoWay}" Margin="5" />
         </StackPanel>
 
         <ScrollViewer 

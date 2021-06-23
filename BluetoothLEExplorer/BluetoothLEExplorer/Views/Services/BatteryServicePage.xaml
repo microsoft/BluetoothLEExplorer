@@ -108,9 +108,6 @@
                               IsOn="{x:Bind ViewModel.ServiceVM.IsDiscoverable, Mode=TwoWay}" Margin="5" />
                 <ToggleSwitch x:Name="PublishingSwitch" RelativePanel.Below="DiscoverableSwitch" Header="Publish advertisement."
                               IsOn="{x:Bind ViewModel.ServiceVM.IsPublishing, Mode=TwoWay}" Margin="5" />
-                
-                <!--<ProgressRing Visibility="{x:Bind ViewModel.IsPublishingProgress, Mode=OneWay, Converter={StaticResource VisibleWhenTrueConverter}}" 
-                            IsActive="{x:Bind ViewModel.IsPublishingProgress, Mode=OneWay}" Margin="-200,0,0,-20"/>-->
 
             </StackPanel>
             <customControls:GattLocalCharacteristicControl Characteristic="{x:Bind ViewModel.BatteryLevel, Mode=OneWay}" Margin="5" />

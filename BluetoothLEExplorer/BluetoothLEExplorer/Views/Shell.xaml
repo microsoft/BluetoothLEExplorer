@@ -21,66 +21,68 @@
         <myconverters:ShellFontConverter x:Key="StrikethroughConverter" />
     </Page.Resources>
 
-    <Controls:HamburgerMenu x:Name="MyHamburgerMenu"
-                            VisualStateNarrowMinWidth="{StaticResource NarrowMinWidth}"
-                            VisualStateNormalMinWidth="{StaticResource NormalMinWidth}"
-                            >
-        
-        
+    <Controls:HamburgerMenu
+        x:Name="MyHamburgerMenu"
+        VisualStateNarrowMinWidth="{StaticResource NarrowMinWidth}"
+        VisualStateNormalMinWidth="{StaticResource NormalMinWidth}">
 
         <Controls:HamburgerMenu.PrimaryButtons>
             <!--  mainpage button  -->
             <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:Discover" >
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                                Symbol="Home" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
-                               Text="Discover and Pair" TextDecorations="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                    <SymbolIcon Width="48" Height="48" Symbol="Home" />
+                    <TextBlock
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="Discover and Pair" TextDecorations="{x:Bind ViewModel.IsCentralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
             <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:VirtualPeripheralPage" >
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                                Symbol="Home" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
-                               Text="Virtual Peripheral" TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                    <SymbolIcon Width="48" Height="48" Symbol="Home" />
+                    <TextBlock
+                        Margin="12,0,0,0" VerticalAlignment="Center"
+                        Text="Virtual Peripheral"
+                        TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
             <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:VirtualKeyboardPage" >
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                                Symbol="Home" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
-                               Text="Virtual Keyboard" TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
+                    <SymbolIcon Width="48" Height="48" Symbol="Home" />
+                    <TextBlock
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="Virtual Keyboard"
+                        TextDecorations="{x:Bind ViewModel.IsPeripheralRoleSupported, Converter={StaticResource StrikethroughConverter}}" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
-            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:Beacon" Visibility="Collapsed">
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:AdvertisementMonitorPage">
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                                Symbol="Home" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
-                               Text="Beacon"/>
+                    <SymbolIcon Width="48" Height="48" Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Advertisement Monitor"/>
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:AdvertisementBeaconPage">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48" Height="48" Symbol="Home" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Advertisement Beacon"/>
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
         </Controls:HamburgerMenu.PrimaryButtons>
 
         <Controls:HamburgerMenu.SecondaryButtons>
             <!--  settingspage button  -->
-            <Controls:HamburgerButtonInfo x:Name="SettingsButton" PageParameter="0"
-                                          PageType="views:SettingsPage">
+            <Controls:HamburgerButtonInfo x:Name="SettingsButton" PageType="views:SettingsPage">
                 <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                     <SuppressNavigationTransitionInfo />
                 </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                                Symbol="Setting" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
-                               Text="Settings" />
+                    <SymbolIcon Width="48" Height="48" Symbol="Setting" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Settings" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
         </Controls:HamburgerMenu.SecondaryButtons>
 
     </Controls:HamburgerMenu>
-
 </Page>
 

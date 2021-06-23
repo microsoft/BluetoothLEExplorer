@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using GattServicesLibrary.Helpers;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Foundation.Metadata;
+using Windows.Storage.Streams;
 
 namespace GattServicesLibrary
 {
@@ -95,6 +97,7 @@ namespace GattServicesLibrary
         }
 
         private bool isPublishing = false;
+
         public bool IsPublishing
         {
             get
@@ -104,10 +107,29 @@ namespace GattServicesLibrary
 
             private set
             {
-                if(value != isPublishing)
+                if (value != isPublishing)
                 {
                     isPublishing = value;
                     OnPropertyChanged(new PropertyChangedEventArgs("IsPublishing"));
+                }
+            }
+        }
+
+        private bool isAdvertising = false;
+
+        public bool IsAdvertising
+        {
+            get
+            {
+                return isAdvertising;
+            }
+
+            private set
+            {
+                if(value != isAdvertising)
+                {
+                    isAdvertising = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("IsAdvertising"));
                 }
             }
         }
@@ -147,6 +169,40 @@ namespace GattServicesLibrary
             }
         }
 
+        private bool includeServiceData;
+
+        public bool IncludeServiceData
+        {
+            get
+            {
+                return includeServiceData;
+            }
+
+            set
+            {
+                if (value != includeServiceData)
+                {
+                    includeServiceData = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("IncludeServiceData"));
+                }
+            }
+        }
+
+        private IBuffer serviceData = null;
+
+        public IBuffer ServiceData
+        {
+            get
+            {
+                return serviceData;
+            }
+
+            set
+            {
+                serviceData = value;
+            }
+        }
+
         /// <summary>
         /// Internal ServiceProvider
         /// </summary>
@@ -177,9 +233,14 @@ namespace GattServicesLibrary
 
         private void ServiceProvider_AdvertisementStatusChanged(GattServiceProvider sender, GattServiceProviderAdvertisementStatusChangedEventArgs args)
         {
-            if (args.Status != GattServiceProviderAdvertisementStatus.Started)
+            if ((args.Status == GattServiceProviderAdvertisementStatus.Stopped) ||
+                (args.Status == GattServiceProviderAdvertisementStatus.Aborted))
             {
-                IsPublishing = false;
+                IsAdvertising = false;
+            }
+            else
+            {
+                IsAdvertising = true;
             }
         }
 
@@ -210,6 +271,18 @@ namespace GattServicesLibrary
         {
             try
             {
+                if (IncludeServiceData)
+                {
+                    if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 10))
+                    {
+                        ad.ServiceData = serviceData;
+                    }
+                    else
+                    {
+                        IncludeServiceData = false;
+                    }
+                }
+
                 ServiceProvider.StartAdvertising(ad);
                 IsPublishing = true;
                 OnPropertyChanged(new PropertyChangedEventArgs("IsPublishing"));
