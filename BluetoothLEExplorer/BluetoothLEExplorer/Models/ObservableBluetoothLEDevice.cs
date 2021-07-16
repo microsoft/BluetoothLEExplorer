@@ -467,12 +467,36 @@ namespace BluetoothLEExplorer.Models
             }
         }
 
+        private ulong gattServicesChangedInstances = 0;
+
+        public ulong GattServicesChangedInstances
+        {
+            get
+            {
+                return gattServicesChangedInstances;
+            }
+
+            private set
+            {
+                if (gattServicesChangedInstances != value)
+                {
+                    gattServicesChangedInstances = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("GattServicesChangedInstances"));
+                }
+            }
+        }
+
         /// <summary>
         /// Releases references to Services and the BluetoothLEDevice
         /// </summary>
         public void Dispose()
         {
-            Services.Clear();
+            lock (Services)
+            {
+                Services.Clear();
+                ServiceCount = 0;
+            }
+
             var temp = bluetoothLEDevice;
             BluetoothLEDevice = null;
 
@@ -550,15 +574,9 @@ namespace BluetoothLEExplorer.Models
                 Debug.WriteLine(debugMsg + "In UI thread");
                 try
                 {
-                    if (bluetoothLEDevice == null)
-                    {
-                        Debug.WriteLine(debugMsg + "Calling BluetoothLEDevice.FromIdAsync");
-                        BluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(DeviceInfo.Id);
-                    }
-                    else
-                    {
-                        Debug.WriteLine(debugMsg + "Previously connected, not calling BluetoothLEDevice.FromIdAsync");
-                    }
+                    Dispose();
+                    Debug.WriteLine(debugMsg + "Calling BluetoothLEDevice.FromIdAsync");
+                    BluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(DeviceInfo.Id);
 
                     if (bluetoothLEDevice == null)
                     {
@@ -575,6 +593,7 @@ namespace BluetoothLEExplorer.Models
                         // Setup our event handlers and view model properties
                         BluetoothLEDevice.ConnectionStatusChanged += BluetoothLEDevice_ConnectionStatusChanged;
                         BluetoothLEDevice.NameChanged += BluetoothLEDevice_NameChanged;
+                        GattServicesChangedInstances = 0;
                         BluetoothLEDevice.GattServicesChanged += BluetoothLEDevice_GattServicesChanged;
 
                         IsPaired = DeviceInfo.Pairing.IsPaired;
@@ -623,24 +642,28 @@ namespace BluetoothLEExplorer.Models
 
             // Get all the services for this device
             var result = await BluetoothLEDevice.GetGattServicesAsync(cacheMode);
-            var returnedServices = new DisposableObservableCollection<ObservableGattDeviceService>();
 
             if (result.Status == GattCommunicationStatus.Success)
             {
                 System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
-                foreach (var serv in result.Services)
+
+                lock (Services)
                 {
-                    if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
+                    foreach (var serv in result.Services)
                     {
-                        var temp = new ObservableGattDeviceService(serv);
-                        // This isn't awaited so that the user can disconnect while the services are still being enumerated
-                        temp.Initialize();
-                        returnedServices.Add(temp);
+                        if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
+                        {
+                            var temp = new ObservableGattDeviceService(serv);
+                            // This isn't awaited so that the user can disconnect while the services are still being enumerated
+                            temp.Initialize();
+                            Services.Add(temp);
+                        }
+                        else
+                        {
+                            serv.Dispose();
+                        }
                     }
-                    else
-                    {
-                        serv.Dispose();
-                    }
+                    ServiceCount = Services.Count();
                 }
 
                 succeeded = true;
@@ -660,14 +683,6 @@ namespace BluetoothLEExplorer.Models
                 string msg = "Device unreachable";
                 var messageDialog = new MessageDialog(msg, "Connection failures");
                 await messageDialog.ShowAsync();
-            }
-
-            lock (Services)
-            {
-                // In case we connected before, clear the service list and recreate it
-                Services.Clear();
-                Services = returnedServices;
-                ServiceCount = Services.Count();
             }
 
             return succeeded;
@@ -722,12 +737,13 @@ namespace BluetoothLEExplorer.Models
 
         private async void BluetoothLEDevice_GattServicesChanged(BluetoothLEDevice sender, object args)
         {
-            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(async () =>
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                Windows.UI.Core.CoreDispatcherPriority.Normal,
+                () =>
             {
-                // If we received a service change.  If we are in the middle of discovery services,
-                // we can ignore the service change.
-                await GetAllPrimaryServices(IsPaired ? BluetoothCacheMode.Cached : BluetoothCacheMode.Uncached);
+                GattServicesChangedInstances += 1;
             });
+
         }
 
         /// <summary>

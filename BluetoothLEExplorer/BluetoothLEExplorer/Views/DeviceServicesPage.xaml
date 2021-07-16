@@ -113,6 +113,10 @@
                     <Run Text="{x:Bind ViewModel.Device.Services.Count, Mode=OneWay}" />
                 </TextBlock>
                 <TextBlock>
+                    <Run Text="Number of service changed events:" />
+                    <Run Text="{x:Bind ViewModel.Device.GattServicesChangedInstances, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock>
                     <Run Text="Number of Advertisement Services:" />
                     <Run Text="{x:Bind ViewModel.Device.AdvertisementServiceCount, Mode=OneWay}" />
                 </TextBlock>
