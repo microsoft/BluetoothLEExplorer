@@ -491,7 +491,12 @@ namespace BluetoothLEExplorer.Models
         /// </summary>
         public void Dispose()
         {
-            Services.Clear();
+            lock (Services)
+            {
+                Services.Clear();
+                ServiceCount = 0;
+            }
+
             var temp = bluetoothLEDevice;
             BluetoothLEDevice = null;
 
@@ -641,21 +646,25 @@ namespace BluetoothLEExplorer.Models
             if (result.Status == GattCommunicationStatus.Success)
             {
                 System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
-                foreach (var serv in result.Services)
+
+                lock (Services)
                 {
-                    if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
+                    foreach (var serv in result.Services)
                     {
-                        var temp = new ObservableGattDeviceService(serv);
-                        // This isn't awaited so that the user can disconnect while the services are still being enumerated
-                        temp.Initialize();
-                        Services.Add(temp);
+                        if (!GattServiceUuidHelper.IsReserved(serv.Uuid))
+                        {
+                            var temp = new ObservableGattDeviceService(serv);
+                            // This isn't awaited so that the user can disconnect while the services are still being enumerated
+                            temp.Initialize();
+                            Services.Add(temp);
+                        }
+                        else
+                        {
+                            serv.Dispose();
+                        }
                     }
-                    else
-                    {
-                        serv.Dispose();
-                    }
+                    ServiceCount = Services.Count();
                 }
-                ServiceCount = Services.Count();
 
                 succeeded = true;
             }
@@ -734,7 +743,7 @@ namespace BluetoothLEExplorer.Models
             {
                 GattServicesChangedInstances += 1;
             });
-            
+
         }
 
         /// <summary>
