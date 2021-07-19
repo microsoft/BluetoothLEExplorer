@@ -162,6 +162,8 @@
                                             <TextBlock TextWrapping="WrapWholeWords">
                                                 <Run x:Name="CharacteristicText" Text="Characteristic Name:" />
                                                 <Run Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" />
+                                                <Run x:Name="CharacteristicTextUUID" Text=" - Characteristic Short UUID:" />
+                                                <Run Text="{x:Bind ShortUUID, Mode=OneWay}" FontWeight="Bold" />
                                                 <Run Text=" - User Description: " />
                                                 <Run x:Name="CharacteristicUserDescription" Text="{x:Bind Characteristic.UserDescription, Mode=OneWay}" />
                                                 <Run Text=" - " />
