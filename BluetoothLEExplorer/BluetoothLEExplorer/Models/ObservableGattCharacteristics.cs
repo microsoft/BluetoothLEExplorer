@@ -252,6 +252,31 @@ namespace BluetoothLEExplorer.Models
         }
 
         /// <summary>
+        /// Source for <see cref="ShortUUID"/>
+        /// </summary>
+        private string shortUuid;
+
+        /// <summary>
+        /// Gets or sets the ShortUUID of this characteristic
+        /// </summary>
+        public string ShortUUID
+        {
+            get
+            {
+                return shortUuid;
+            }
+
+            set
+            {
+                if (shortUuid != value)
+                {
+                    shortUuid = value;
+                    OnPropertyChanged(new PropertyChangedEventArgs("ShortUUID"));
+                }
+            }
+        }
+
+        /// <summary>
         /// Source for <see cref="Value"/>
         /// </summary>
         private string value;
@@ -321,6 +346,15 @@ namespace BluetoothLEExplorer.Models
             Characteristic = characteristic;
             Parent = parent;
             Name = GattCharacteristicUuidHelper.ConvertUuidToName(characteristic.Uuid);
+            var shortId = BluetoothUuidHelper.TryGetShortId(characteristic.Uuid);
+            if (shortId.HasValue)
+            {
+                ShortUUID = "0x" + shortId.Value.ToString("X");
+            }
+            else
+            {
+                ShortUUID = "";
+            }
             UUID = characteristic.Uuid.ToString();
         }
 
