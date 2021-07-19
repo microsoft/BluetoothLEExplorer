@@ -340,7 +340,7 @@ namespace BluetoothLEExplorer.Services.GattUuidHelpers
         DatabaseHash = 0x2B2A,
         ClientSupportedFeatures = 0x2B29,
         AudioInputState = 0x2B77,
-        GainSettingAttribute = 0x2B78,
+        GainSettingsAttribute = 0x2B78,
         AudioInputType = 0x2B79,
         AudioInputStatus = 0x2B7A,
         AudioInputControlPoint = 0x2B7B,
