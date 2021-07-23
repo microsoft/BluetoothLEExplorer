@@ -79,12 +79,18 @@
                                       OffContent="Dark theme" OnContent="Light theme"
                                       RelativePanel.AlignLeftWithPanel="True"
                                       RelativePanel.Below="UseShellDrawnBackButtonToggleSwtich" />
-                        
+
                         <ToggleSwitch x:Name="UseCachingToggleSwitch" Header="Use Caching"
                                       IsOn="{Binding UseCachingButton, Mode=TwoWay}"
                                       OffContent="Will make over the air requests if necessary based on GattRobustCaching if supported." OnContent="Will use locally cached values where possible."
                                       RelativePanel.AlignLeftWithPanel="True"
                                       RelativePanel.Below="UseLightThemeToggleSwitch" />
+
+                        <ToggleSwitch x:Name="CloseConnectionsToggleSwitch" Header="Close Connections"
+                                      IsOn="{Binding CloseConnectionsButton, Mode=TwoWay}"
+                                      OffContent="Leave Bluetooth connections open while navigating the app." OnContent="Close Bluetooth connections upon navigating to Discovery page."
+                                      RelativePanel.AlignLeftWithPanel="True"
+                                      RelativePanel.Below="UseCachingToggleSwitch" />
                     </RelativePanel>
 
                 </ScrollViewer>

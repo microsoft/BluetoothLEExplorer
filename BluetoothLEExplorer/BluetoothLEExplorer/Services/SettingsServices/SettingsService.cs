@@ -71,6 +71,22 @@ namespace BluetoothLEExplorer.Services.SettingsServices
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether connections should be closed upon going back to Discovery page.
+        /// </summary>
+        public bool CloseConnections
+        {
+            get
+            {
+                return helper.Read<bool>(nameof(CloseConnections), true);
+            }
+
+            set
+            {
+                helper.Write(nameof(CloseConnections), value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the application theme
         /// </summary>
         public ApplicationTheme AppTheme

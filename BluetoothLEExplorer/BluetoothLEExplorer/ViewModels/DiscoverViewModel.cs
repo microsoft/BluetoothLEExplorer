@@ -338,7 +338,10 @@ namespace BluetoothLEExplorer.ViewModels
 
             Context.BluetoothLEDevices.CollectionChanged += BluetoothLEDevices_CollectionChanged;
             GridFilter = "";
-            Context.ReleaseAllResources();
+            if (Services.SettingsServices.SettingsService.Instance.CloseConnections)
+            {
+                Context.ReleaseAllResources();
+            }
             UpdateDeviceList();
 
             await Task.CompletedTask;

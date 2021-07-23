@@ -71,6 +71,7 @@ namespace BluetoothLEExplorer.ViewModels
                 RaisePropertyChanged();
             }
         }
+
         /// <summary>
         /// Gets or sets a value indicating whether caching should be used
         /// </summary>
@@ -84,6 +85,23 @@ namespace BluetoothLEExplorer.ViewModels
             set
             {
                 settings.UseCaching = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether connections should be closed upon going back to Discovery page
+        /// </summary>
+        public bool CloseConnectionsButton
+        {
+            get
+            {
+                return settings.CloseConnections;
+            }
+
+            set
+            {
+                settings.CloseConnections = value;
                 RaisePropertyChanged();
             }
         }
