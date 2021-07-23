@@ -88,7 +88,7 @@
 
                         <ToggleSwitch x:Name="CloseConnectionsToggleSwitch" Header="Close Connections"
                                       IsOn="{Binding CloseConnectionsButton, Mode=TwoWay}"
-                                      OffContent="Leave Bluetooth connections open while navigating the app." OnContent="Close Bluetooth conections upon navigating to Discovery page."
+                                      OffContent="Leave Bluetooth connections open while navigating the app." OnContent="Close Bluetooth connections upon navigating to Discovery page."
                                       RelativePanel.AlignLeftWithPanel="True"
                                       RelativePanel.Below="UseCachingToggleSwitch" />
                     </RelativePanel>
