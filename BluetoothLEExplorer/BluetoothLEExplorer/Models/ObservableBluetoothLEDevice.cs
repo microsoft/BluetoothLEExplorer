@@ -44,10 +44,10 @@ namespace BluetoothLEExplorer.Models
                     throw new InvalidOperationException("Compared objects are not ObservableBluetoothLEDevice");
                 }
 
-                // If they're equal
+                // If they're equal sort by bluetooth address
                 if(a.RSSI == b.RSSI)
                 {
-                    return 0;
+                    return a.BluetoothAddressAsString.CompareTo(b.BluetoothAddressAsString);
                 }
 
                 // RSSI == 0 means we don't know it. Always make that the end.
@@ -417,7 +417,8 @@ namespace BluetoothLEExplorer.Models
 
                 int newValue = (int)Math.Round(RssiValue.Average(), 0);
 
-                if (rssi != newValue)
+                if (rssi < newValue - 2 ||
+                    rssi > newValue + 2)
                 {
                     rssi = newValue;
                     OnPropertyChanged(new PropertyChangedEventArgs("RSSI"));
